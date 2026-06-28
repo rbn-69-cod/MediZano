@@ -29,7 +29,6 @@ El proyecto integra un backend robusto con **Spring Boot** y una interfaz modern
 | --- | --- |
 | Ventas | Registro de ventas, seleccion de productos, calculo de totales y monto a pagar en tiempo real. |
 | Busqueda | Busqueda de medicamentos en tiempo real desde el modulo de ventas. |
-| Moneda | Visualizacion de importes en soles  `S/.`. |
 | Impuestos | Manejo de IGV como impuesto unico Sunat. |
 | Comprobantes | Generacion de comprobante PDF con datos de venta, productos, cantidades e importes. |
 | Inventario | Control de stock, lotes, vencimientos y alertas de productos bajos. |
