@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Botica POS Peru</h1>
   <p align="center">
-    Sistema de punto de venta para boticas y farmacias, en soles peruanos y con IGV.
+    Sistema de punto de venta para boticas y farmacias, en soles  y con IGV.
   </p>
 </p>
 
@@ -17,7 +17,7 @@
 
 ## Presentacion del proyecto
 
-**Botica POS Peru** es una aplicacion web para gestionar ventas, medicamentos, inventario, devoluciones, reportes y usuarios en una botica o farmacia. El sistema esta orientado al contexto peruano: moneda en **soles S/.**, calculo de **IGV**, textos en **espanol latinoamericano** y flujos de venta pensados para atencion rapida en mostrador.
+**Botica POS Peru** es una aplicacion web para gestionar ventas, medicamentos, inventario, devoluciones, reportes y usuarios en una botica o farmacia. El sistema esta orientado: moneda en **soles S/.**, calculo de **IGV** y flujos de venta pensados para atencion rapida en mostrador.
 
 El proyecto integra un backend robusto con **Spring Boot** y una interfaz moderna con **Angular**, permitiendo registrar ventas, buscar medicamentos en tiempo real, controlar stock, generar comprobantes PDF y consultar reportes operativos.
 
@@ -29,7 +29,7 @@ El proyecto integra un backend robusto con **Spring Boot** y una interfaz modern
 | --- | --- |
 | Ventas | Registro de ventas, seleccion de productos, calculo de totales y monto a pagar en tiempo real. |
 | Busqueda | Busqueda de medicamentos en tiempo real desde el modulo de ventas. |
-| Moneda | Visualizacion de importes en soles peruanos `S/.`. |
+| Moneda | Visualizacion de importes en soles  `S/.`. |
 | Impuestos | Manejo de IGV como impuesto unico para Peru. |
 | Comprobantes | Generacion de comprobante PDF con datos de venta, productos, cantidades e importes. |
 | Inventario | Control de stock, lotes, vencimientos y alertas de productos bajos. |
@@ -339,7 +339,7 @@ Al iniciar el backend, el sistema crea o actualiza usuarios base para probar los
 
 El sistema fue preparado para funcionar con criterios locales:
 
-- Moneda: soles peruanos `S/.`.
+- Moneda: soles  `S/.`.
 - Impuesto: IGV como impuesto unico.
 - Textos: interfaz en espanol latinoamericano.
 - Pagos: opciones comunes como efectivo, tarjeta, Yape y Plin.
