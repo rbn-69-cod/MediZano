@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Botica POS Peru</h1>
   <p align="center">
-    Sistema de punto de venta para boticas y farmacias, en soles  y con IGV.
+    Sistema de punto de venta para boticas y farmacias de mediana capacidad.
   </p>
 </p>
 
@@ -17,7 +17,7 @@
 
 ## Presentacion del proyecto
 
-**Botica POS Peru** es una aplicacion web para gestionar ventas, medicamentos, inventario, devoluciones, reportes y usuarios en una botica o farmacia. El sistema esta orientado: moneda en **soles S/.**, calculo de **IGV** y flujos de venta pensados para atencion rapida en mostrador.
+**Botica POS MediZano** es una aplicacion web para gestionar ventas, medicamentos, inventario, reportes y usuarios en una botica o farmacia. El sistema esta orientado: moneda en el calculo de **IGV** y flujos de venta pensados para atencion rapida en mostrador.
 
 El proyecto integra un backend robusto con **Spring Boot** y una interfaz moderna con **Angular**, permitiendo registrar ventas, buscar medicamentos en tiempo real, controlar stock, generar comprobantes PDF y consultar reportes operativos.
 
@@ -30,11 +30,11 @@ El proyecto integra un backend robusto con **Spring Boot** y una interfaz modern
 | Ventas | Registro de ventas, seleccion de productos, calculo de totales y monto a pagar en tiempo real. |
 | Busqueda | Busqueda de medicamentos en tiempo real desde el modulo de ventas. |
 | Moneda | Visualizacion de importes en soles  `S/.`. |
-| Impuestos | Manejo de IGV como impuesto unico para Peru. |
+| Impuestos | Manejo de IGV como impuesto unico Sunat. |
 | Comprobantes | Generacion de comprobante PDF con datos de venta, productos, cantidades e importes. |
 | Inventario | Control de stock, lotes, vencimientos y alertas de productos bajos. |
 | Medicamentos | Registro, actualizacion y consulta de productos farmaceuticos. |
-| Devoluciones | Gestion de retornos y soporte al cliente. |
+| historial | Gestion de  productos vendidos y soporte al cliente. |
 | Reportes | Indicadores de ventas, compras, actividad y rendimiento. |
 | Seguridad | Autenticacion JWT, roles de usuario y proteccion de rutas. |
 | Administracion | Gestion de usuarios, historial de inicio de sesion y auditoria de actividad. |
@@ -51,8 +51,8 @@ Funciones destacadas:
 
 - Busqueda de medicamentos en tiempo real.
 - Calculo automatico de subtotal, IGV y total.
-- Visualizacion de `Monto a pagar`, `Pagado`, `Pendiente` y `Vuelto`.
-- Soporte para pagos en efectivo, tarjeta, Yape y Plin.
+- Visualizacion de `Monto a pagar`, `Pagado` y `Vuelto`.
+- Soporte para pagos en efectivo, tarjeta(en proceso), Yape y Plin(verificacion manual).
 - Generacion de comprobante PDF.
 
 ### Inventario
@@ -76,17 +76,8 @@ Funciones destacadas:
 - Registro de precios, stock y datos de producto.
 - Control de productos activos.
 - Asociacion con lotes disponibles.
+- Agregar nuevo lote de productos 
 
-### Devoluciones
-
-Modulo para atender incidencias despues de una venta.
-
-Funciones destacadas:
-
-- Registro de devoluciones.
-- Consulta de ventas relacionadas.
-- Control de productos retornados.
-- Trazabilidad por usuario.
 
 ### Reportes
 
@@ -182,7 +173,6 @@ MedicPOS
 | `MedicineController` | Gestion de medicamentos. |
 | `BatchController` | Gestion de lotes y stock. |
 | `BillingController` | Ventas, comprobantes y facturacion. |
-| `ReturnController` | Devoluciones. |
 | `ReportController` | Reportes e indicadores. |
 | `UserController` | Gestion de usuarios. |
 | `AuditLogController` | Actividad y auditoria. |
@@ -329,20 +319,20 @@ Al iniciar el backend, el sistema crea o actualiza usuarios base para probar los
 4. Seleccionar el producto desde los resultados en tiempo real.
 5. Ajustar cantidad y revisar el total.
 6. Confirmar el **Monto a pagar** en soles `S/.`.
-7. Registrar el pago con efectivo, tarjeta, Yape o Plin.
+7. Registrar el pago con efectivo, Yape o Plin.
 8. Generar el comprobante PDF.
 9. Revisar el impacto en inventario y reportes.
 
 ---
 
-## Enfoque para Peru
+## Enfoque
 
-El sistema fue preparado para funcionar con criterios locales:
+El sistema fue preparado para funcionar con los criterios :
 
 - Moneda: soles  `S/.`.
 - Impuesto: IGV como impuesto unico.
-- Textos: interfaz en espanol latinoamericano.
-- Pagos: opciones comunes como efectivo, tarjeta, Yape y Plin.
+- Textos: interfaz en espanol.
+- Pagos: opciones comunes como efectivo, tarjeta(en proceso), Yape y Plin(validacion manual).
 - Comprobantes: importes y totales listos para presentacion local.
 - Ventas: monto a pagar visible y actualizado en tiempo real.
 
@@ -412,7 +402,7 @@ Desarrollado por:
 - Aldo
 - Kenyi
 - Igarlos
-- Juan
+- Juan Diego
 
 ```text
 Botica POS Peru
