@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Botica POS Peru</h1>
   <p align="center">
-    Sistema de punto de venta para boticas y farmacias peruanas, adaptado a moneda soles, IGV y atencion en español latinoamericano.
+    Sistema de punto de venta para boticas y farmacias, en soles peruanos y con IGV.
   </p>
 </p>
 
@@ -17,7 +17,7 @@
 
 ## Presentacion del proyecto
 
-**Botica POS Peru** es una aplicacion web para gestionar ventas, medicamentos, inventario, devoluciones, reportes y usuarios en una botica o farmacia. El sistema fue adaptado para el contexto peruano, usando moneda en **soles S/.**, calculo de **IGV**, textos en **español latinoamericano** y flujos de venta pensados para atencion rapida en mostrador.
+**Botica POS Peru** es una aplicacion web para gestionar ventas, medicamentos, inventario, devoluciones, reportes y usuarios en una botica o farmacia. El sistema esta orientado al contexto peruano: moneda en **soles S/.**, calculo de **IGV**, textos en **espanol latinoamericano** y flujos de venta pensados para atencion rapida en mostrador.
 
 El proyecto integra un backend robusto con **Spring Boot** y una interfaz moderna con **Angular**, permitiendo registrar ventas, buscar medicamentos en tiempo real, controlar stock, generar comprobantes PDF y consultar reportes operativos.
 
@@ -151,25 +151,25 @@ Funciones destacadas:
 
 ```text
 MedicPOS
-├── src/main/java/com/medicalstore/pos
-│   ├── config          # Configuracion general, seguridad y datos iniciales
-│   ├── controller      # Endpoints REST
-│   ├── dto             # Objetos de transferencia de datos
-│   ├── entity          # Entidades JPA
-│   ├── exception       # Manejo centralizado de errores
-│   ├── repository      # Repositorios Spring Data JPA
-│   ├── security        # JWT, filtros y autenticacion
-│   └── service         # Logica de negocio
-│
-├── src/main/resources
-│   └── application.yml # Configuracion del backend
-│
-└── frontend
-    └── src/app
-        ├── auth        # Login y autenticacion
-        ├── core        # Layout, servicios base y componentes comunes
-        ├── modules     # Pantallas principales del sistema
-        └── shared      # Elementos compartidos
+|-- src/main/java/com/medicalstore/pos
+|   |-- config          # Configuracion general, seguridad y datos iniciales
+|   |-- controller      # Endpoints REST
+|   |-- dto             # Objetos de transferencia de datos
+|   |-- entity          # Entidades JPA
+|   |-- exception       # Manejo centralizado de errores
+|   |-- repository      # Repositorios Spring Data JPA
+|   |-- security        # JWT, filtros y autenticacion
+|   `-- service         # Logica de negocio
+|
+|-- src/main/resources
+|   `-- application.yml # Configuracion del backend
+|
+`-- frontend
+    `-- src/app
+        |-- auth        # Login y autenticacion
+        |-- core        # Layout, servicios base y componentes comunes
+        |-- modules     # Pantallas principales del sistema
+        `-- shared      # Elementos compartidos
 ```
 
 ---
@@ -236,7 +236,7 @@ server:
   port: 8080
 ```
 
-> Para produccion se recomienda cambiar usuario, contraseña, secreto JWT y politicas de logs.
+> Para produccion se recomienda cambiar usuario, contrasena, secreto JWT y politicas de logs.
 
 ---
 
@@ -307,7 +307,7 @@ npm run build
 
 Al iniciar el backend, el sistema crea o actualiza usuarios base para probar los roles principales.
 
-| Usuario | Contraseña | Rol | Acceso principal |
+| Usuario | Contrasena | Rol | Acceso principal |
 | --- | --- | --- | --- |
 | `admin` | `password123` | Administrador | Todo el sistema. |
 | `cajero` | `password123` | Cajero | Ventas. |
@@ -335,15 +335,15 @@ Al iniciar el backend, el sistema crea o actualiza usuarios base para probar los
 
 ---
 
-## Adaptacion a Peru
+## Enfoque para Peru
 
-El sistema fue ajustado para funcionar con criterios locales:
+El sistema fue preparado para funcionar con criterios locales:
 
 - Moneda: soles peruanos `S/.`.
 - Impuesto: IGV como impuesto unico.
-- Textos: interfaz en español latinoamericano.
+- Textos: interfaz en espanol latinoamericano.
 - Pagos: opciones comunes como efectivo, tarjeta, Yape y Plin.
-- Comprobantes: importes y totales preparados para presentacion local.
+- Comprobantes: importes y totales listos para presentacion local.
 - Ventas: monto a pagar visible y actualizado en tiempo real.
 
 ---
@@ -359,12 +359,12 @@ Componentes principales:
 | `JwtTokenProvider` | Genera, valida y extrae informacion del token JWT. |
 | `JwtAuthenticationFilter` | Intercepta solicitudes y valida credenciales. |
 | `SecurityConfig` | Define reglas de seguridad y acceso a rutas. |
-| `UserDetailsServiceImpl` | Carga usuarios para autenticacion. |
+| `CustomUserDetailsService` | Carga usuarios para autenticacion. |
 
 Buenas practicas recomendadas:
 
 - Cambiar el secreto JWT en produccion.
-- Usar contraseñas seguras.
+- Usar contrasenas seguras.
 - Activar HTTPS.
 - Restringir Swagger en produccion.
 - Configurar perfiles separados para desarrollo y produccion.
@@ -373,7 +373,7 @@ Buenas practicas recomendadas:
 
 ## Puntos fuertes para presentar
 
-- Interfaz clara y adaptada al flujo real de una botica.
+- Interfaz clara y orientada al flujo real de una botica.
 - Busqueda de productos en tiempo real para acelerar la atencion.
 - Calculo automatico de totales en soles.
 - Backend con arquitectura por capas.
@@ -401,13 +401,18 @@ Buenas practicas recomendadas:
 
 ## Estado del proyecto
 
-El sistema cuenta con una base funcional para uso academico, demostracion y mejora continua. Incluye frontend, backend, base de datos, autenticacion, modulos operativos y adaptacion principal al contexto peruano.
+El sistema cuenta con una base funcional para uso academico, demostracion y mejora continua. Incluye frontend, backend, base de datos, autenticacion, modulos operativos y configuracion principal para el entorno peruano.
 
 ---
 
-## Autor
+## Autores
 
-Proyecto preparado para presentacion academica y demostracion funcional de un sistema POS para boticas en Peru.
+Desarrollado por:
+
+- Aldo
+- Kenyi
+- Igarlos
+- Juan
 
 ```text
 Botica POS Peru
