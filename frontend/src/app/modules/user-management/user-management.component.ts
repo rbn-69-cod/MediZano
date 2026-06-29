@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService, UserResponse, ChangePasswordRequest } from '../../core/services/user.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { formatDateTime } from '../../core/utils/date-time.util';
 
 @Component({
   selector: 'app-user-management',
@@ -51,7 +52,7 @@ export class UserManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.dialogService.error('Error loading users: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar los usuarios: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -108,33 +109,33 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.changeUserPassword(this.selectedUser.id, request).subscribe({
       next: () => {
-        this.dialogService.success(`Password changed successfully for ${this.selectedUser?.username}`);
+        this.dialogService.success(`Contraseña actualizada para ${this.selectedUser?.username}`);
         this.closePasswordModal();
         this.isChangingPassword = false;
       },
       error: (error) => {
         console.error('Error changing password:', error);
-        this.dialogService.error('Error changing password: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cambiar la contraseña: ' + (error.message || 'Error desconocido'));
         this.isChangingPassword = false;
       }
     });
   }
 
   toggleUserStatus(user: UserResponse): void {
-    const action = user.active ? 'deactivate' : 'activate';
+    const action = user.active ? 'desactivar' : 'activar';
     this.dialogService.confirm(
-      `Are you sure you want to ${action} user "${user.username}"?`,
-      `Confirm ${action.charAt(0).toUpperCase() + action.slice(1)} User`
+      `¿Deseas ${action} al usuario "${user.username}"?`,
+      `Confirmar acción`
     ).then((confirmed) => {
       if (confirmed) {
         this.userService.updateUserStatus(user.id, !user.active).subscribe({
           next: () => {
-            this.dialogService.success(`User ${user.username} has been ${action}d successfully`);
+            this.dialogService.success(`El usuario ${user.username} se actualizó correctamente`);
             this.loadUsers();
           },
           error: (error) => {
             console.error('Error updating user status:', error);
-            this.dialogService.error('Error updating user status: ' + (error.message || 'Unknown error'));
+            this.dialogService.error('Error al actualizar el estado: ' + (error.message || 'Error desconocido'));
           }
         });
       }
@@ -170,15 +171,17 @@ export class UserManagementComponent implements OnInit {
     return roleClasses[role] || 'badge-default';
   }
 
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      ADMIN: 'Administrador', CASHIER: 'Cajero', STOCK_MONITOR: 'Supervisor de inventario',
+      STOCK_KEEPER: 'Encargado de almacén', CUSTOMER_SUPPORT: 'Atención al cliente',
+      ANALYST: 'Analista', MANAGER: 'Gerente'
+    };
+    return labels[role] || role;
+  }
+
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateTime(dateString);
   }
 
   get newPassword() {
@@ -189,4 +192,3 @@ export class UserManagementComponent implements OnInit {
     return this.passwordForm.get('confirmPassword');
   }
 }
-

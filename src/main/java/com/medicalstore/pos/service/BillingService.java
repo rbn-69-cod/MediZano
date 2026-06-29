@@ -89,14 +89,14 @@ public class BillingService {
                 // FIFO: Get available batch ordered by expiry date
                 batch = batchService.getAvailableBatchForMedicine(medicine, itemRequest.getQuantity());
             } else {
-                throw new RuntimeException("Either medicineId or barcode must be provided");
+                throw new RuntimeException("Cada producto debe tener medicamento o codigo de barras");
             }
             
             // Lock batch for update (pessimistic locking)
             Batch lockedBatch = batchService.getBatchEntity(batch.getId());
             if (!lockedBatch.hasStock(itemRequest.getQuantity())) {
-                throw new RuntimeException("Insufficient stock for " + medicine.getName() + 
-                        " in batch " + batch.getBatchNumber());
+                throw new RuntimeException("Stock insuficiente para " + medicine.getName() + 
+                        " en el lote " + batch.getBatchNumber());
             }
             
             // Calculate prices and GST
@@ -135,7 +135,7 @@ public class BillingService {
         
         for (PaymentRequest paymentRequest : request.getPayments()) {
             if (paymentRequest.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new RuntimeException("Payment amount must be positive");
+                throw new RuntimeException("El monto del pago debe ser mayor a cero");
             }
             
             String paymentReference = paymentRequest.getPaymentReference();
@@ -156,21 +156,24 @@ public class BillingService {
             totalPaid = totalPaid.add(paymentRequest.getAmount());
         }
         
-        // Validate payment amount (allow partial payments and overpayments)
+        // Validate payment amount. Cash received is handled by the frontend as change;
+        // the backend stores only the amount applied to the sale.
         if (totalPaid.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("Total payment amount must be greater than zero");
+            throw new RuntimeException("El monto pagado debe ser mayor a cero");
+        }
+
+        if (totalPaid.compareTo(bill.getTotalAmount()) > 0) {
+            throw new RuntimeException("El monto pagado no puede ser mayor al total de la venta");
         }
         
         bill.setPayments(payments);
         
         // Update payment status based on amount paid
         // PARTIAL: paid < total amount
-        // PAID: paid >= total amount (includes exact payment and overpayment)
+        // PAID: paid equals total amount
         if (totalPaid.compareTo(bill.getTotalAmount()) < 0) {
-            // Partially paid - amount is less than total
             bill.setPaymentStatus(Bill.PaymentStatus.PARTIALLY_PAID);
         } else {
-            // Fully paid - amount equals or exceeds total (includes overpayment)
             bill.setPaymentStatus(Bill.PaymentStatus.PAID);
         }
         
@@ -296,7 +299,7 @@ public class BillingService {
     /**
      * Calculates payment status based on total paid amount vs bill total
      * PARTIALLY_PAID: totalPaid < totalAmount
-     * PAID: totalPaid >= totalAmount (includes exact payment and overpayment)
+     * PAID: totalPaid >= totalAmount
      */
     private Bill.PaymentStatus calculatePaymentStatus(Bill bill) {
         if (bill.getCancelled()) {
@@ -340,4 +343,3 @@ public class BillingService {
                 .build();
     }
 }
-

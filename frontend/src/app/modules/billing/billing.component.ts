@@ -109,14 +109,14 @@ export class BillingComponent implements OnInit, OnDestroy {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.hasCamera = devices.some(device => device.kind === 'videoinput');
     } catch (error) {
-      console.error('Error al verificar disponibilidad de camara:', error);
+      console.error('Error al verificar disponibilidad de cámara:', error);
       this.hasCamera = false;
     }
   }
 
   async startScanning(): Promise<void> {
     if (!this.hasCamera) {
-      this.dialogService.error('Camara no disponible. Ingresa el codigo manualmente.');
+      this.dialogService.error('Cámara no disponible. Ingresa el código manualmente.');
       return;
     }
 
@@ -142,7 +142,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       
       if (!videoElement) {
         console.error('Elemento de video no encontrado despues de reintentos');
-        this.dialogService.error('No se pudo abrir el visor de camara. Actualiza la pagina e intenta otra vez.');
+        this.dialogService.error('No se pudo abrir el visor de cámara. Actualiza la página e intenta otra vez.');
         this.isScanning = false;
         return;
       }
@@ -181,7 +181,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       const videoInputDevices = await this.codeReader.listVideoInputDevices();
       
       if (videoInputDevices.length === 0) {
-        this.dialogService.error('No se encontraron camaras en el dispositivo.');
+        this.dialogService.error('No se encontraron cámaras en el dispositivo.');
         this.isScanning = false;
         return;
       }
@@ -199,7 +199,7 @@ export class BillingComponent implements OnInit, OnDestroy {
 
       // Set the stream to the video element (we know it exists from the check above)
       if (!videoElement) {
-        this.dialogService.error('No se encontro el visor de camara.');
+        this.dialogService.error('No se encontró el visor de cámara.');
         this.isScanning = false;
         return;
       }
@@ -242,13 +242,13 @@ export class BillingComponent implements OnInit, OnDestroy {
         }
       );
     } catch (error: any) {
-      console.error('Error al iniciar camara:', error);
+      console.error('Error al iniciar cámara:', error);
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-        this.dialogService.error('Permiso de camara denegado. Habilita el acceso a la camara.');
+        this.dialogService.error('Permiso de cámara denegado. Habilita el acceso a la cámara.');
       } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-        this.dialogService.error('No se encontro camara. Revisa tu dispositivo.');
+        this.dialogService.error('No se encontró cámara. Revisa tu dispositivo.');
       } else {
-        this.dialogService.error('No se pudo iniciar la camara: ' + (error.message || 'error desconocido'));
+        this.dialogService.error('No se pudo iniciar la cámara: ' + (error.message || 'error desconocido'));
       }
       this.isScanning = false;
       this.stopScanning();
@@ -298,7 +298,7 @@ export class BillingComponent implements OnInit, OnDestroy {
         this.dialogService.success(`Escaneado: ${medicine.name}`);
       },
       error: (error: any) => {
-        this.dialogService.error(error.message || 'No se encontro un medicamento con este codigo');
+        this.dialogService.error(error.message || 'No se encontró un medicamento con este código');
         this.isLoading = false;
       }
     });
@@ -385,6 +385,47 @@ export class BillingComponent implements OnInit, OnDestroy {
     if (mode === PaymentMode.CASH) {
       payment.get('cashProvided')?.setValue(0);
     }
+    this.recalculatePaymentAmounts();
+  }
+
+  onPaymentValueChange(): void {
+    this.recalculatePaymentAmounts();
+  }
+
+  setExactCash(index: number): void {
+    this.recalculatePaymentAmounts();
+    const payment = this.paymentsFormArray.at(index);
+    const amount = Number(payment.get('amount')?.value || 0);
+    payment.get('cashProvided')?.setValue(Math.round(amount * 100) / 100);
+    this.recalculatePaymentAmounts();
+  }
+
+  getPaymentAmount(index: number): number {
+    return Number(this.paymentsFormArray.at(index).get('amount')?.value || 0);
+  }
+
+  private recalculatePaymentAmounts(): void {
+    let accumulated = 0;
+    const total = Math.round(this.totalAmount * 100) / 100;
+
+    this.paymentsFormArray.controls.forEach((payment) => {
+      const mode = payment.get('mode')?.value;
+      const remaining = Math.max(0, Math.round((total - accumulated) * 100) / 100);
+      let appliedAmount = 0;
+
+      if (mode === PaymentMode.CASH) {
+        const cashProvided = Number(payment.get('cashProvided')?.value || 0);
+        appliedAmount = Math.min(isNaN(cashProvided) ? 0 : cashProvided, remaining);
+      } else {
+        appliedAmount = remaining;
+      }
+
+      appliedAmount = Math.round(appliedAmount * 100) / 100;
+      if (Number(payment.get('amount')?.value || 0) !== appliedAmount) {
+        payment.get('amount')?.setValue(appliedAmount, { emitEvent: false });
+      }
+      accumulated += appliedAmount;
+    });
   }
 
   resetBill(): void {
@@ -410,11 +451,13 @@ export class BillingComponent implements OnInit, OnDestroy {
       cashProvided: [0, [Validators.min(0)]]
     });
     this.paymentsFormArray.push(paymentForm);
+    this.recalculatePaymentAmounts();
   }
 
   removePayment(index: number): void {
     if (this.paymentsFormArray.length > 1) {
       this.paymentsFormArray.removeAt(index);
+      this.recalculatePaymentAmounts();
     }
   }
 
@@ -545,6 +588,7 @@ export class BillingComponent implements OnInit, OnDestroy {
             next: (medicine) => {
               item.medicine = medicine;
               this.calculateItemTotal(item);
+              this.recalculatePaymentAmounts();
             },
             error: (error) => {
               console.error('Error fetching medicine for GST calculation:', error);
@@ -570,6 +614,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       ? (itemSubtotal * gstPercentage) / 100 
       : 0;
     item.total = itemSubtotal + gstAmount;
+    this.recalculatePaymentAmounts();
     
     // Debug logging (can be removed in production)
     if (gstPercentage > 0) {
@@ -583,11 +628,13 @@ export class BillingComponent implements OnInit, OnDestroy {
       this.updateItemTotal(this.items[index]);
       // Force change detection for GST recalculation
       this.items = [...this.items];
+      this.recalculatePaymentAmounts();
     }
   }
 
   removeItem(index: number): void {
     this.items.splice(index, 1);
+    this.recalculatePaymentAmounts();
   }
 
   createBill(): void {
@@ -604,12 +651,13 @@ export class BillingComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
+    this.recalculatePaymentAmounts();
 
     // Map items to bill items (exclude internal fields)
     const billItems: BillItemRequest[] = this.items.map(item => {
       // Ensure at least one identifier is present
       if (!item.medicineId && !item.barcode) {
-        throw new Error(`El producto ${item.medicine?.name || 'desconocido'} no tiene ID de medicamento ni codigo`);
+        throw new Error(`El producto ${item.medicine?.name || 'desconocido'} no tiene ID de medicamento ni código`);
       }
       return {
         medicineId: item.medicineId || undefined,
@@ -682,7 +730,7 @@ export class BillingComponent implements OnInit, OnDestroy {
             const fieldErrors = error.error.fieldErrors
               .map((fe: any) => `${fe.field}: ${fe.message}`)
               .join('\n');
-            errorMessage = `La validacion fallo:\n${fieldErrors}`;
+            errorMessage = `La validación falló:\n${fieldErrors}`;
           } else if (error.error.message) {
             errorMessage = error.error.message;
           } else if (error.error.error) {
@@ -706,7 +754,7 @@ export class BillingComponent implements OnInit, OnDestroy {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Bill_${this.currentBill?.billNumber || billId}.pdf`;
+        link.download = `Comprobante_${this.currentBill?.billNumber || billId}.pdf`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

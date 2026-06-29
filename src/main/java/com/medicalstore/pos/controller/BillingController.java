@@ -85,7 +85,7 @@ public class BillingController {
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("attachment", "Bill_" + bill.getBillNumber() + ".pdf");
+            headers.setContentDispositionFormData("attachment", "Comprobante_" + bill.getBillNumber() + ".pdf");
             headers.setContentLength(pdfBytes.length);
             
             return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
@@ -94,5 +94,4 @@ public class BillingController {
         }
     }
 }
-
 

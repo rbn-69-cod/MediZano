@@ -58,7 +58,7 @@ export class ReportsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading sales report:', error);
-        this.dialogService.error('Error loading sales report: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar el reporte de ventas: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -79,7 +79,7 @@ export class ReportsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading GST report:', error);
-        this.dialogService.error('Error loading GST report: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar el reporte de IGV: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -94,7 +94,7 @@ export class ReportsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading stock report:', error);
-        this.dialogService.error('Error loading stock report: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar el reporte de inventario: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -127,4 +127,3 @@ export class ReportsComponent implements OnInit {
     return item.batchId || index;
   }
 }
-

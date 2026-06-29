@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuditLogService, AuditLogResponse } from '../../core/services/audit-log.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { formatDateTime, formatRelativeTime } from '../../core/utils/date-time.util';
 
 @Component({
   selector: 'app-login-history',
@@ -54,7 +55,16 @@ export class LoginHistoryComponent implements OnInit {
   }
 
   getActionType(action: string): string {
-    return action === 'USER_LOGIN' ? 'LOGIN' : 'LOGOUT';
+    return action === 'USER_LOGIN' ? 'INGRESO' : 'SALIDA';
+  }
+
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      ADMIN: 'Administrador', CASHIER: 'Cajero', STOCK_MONITOR: 'Supervisor de inventario',
+      STOCK_KEEPER: 'Encargado de almacén', CUSTOMER_SUPPORT: 'Atención al cliente',
+      ANALYST: 'Analista', MANAGER: 'Gerente'
+    };
+    return labels[role] || role;
   }
 
   getActionBadgeClass(action: string): string {
@@ -62,35 +72,17 @@ export class LoginHistoryComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
+    return formatDateTime(dateString, true);
   }
 
   getTimeAgo(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return formatRelativeTime(dateString);
   }
 
   clearLoginHistory(): void {
     this.dialogService.confirm(
-      'Are you sure you want to delete all login/logout history? This action cannot be undone.',
-      'Clear Login/Logout History'
+      '¿Deseas eliminar todo el historial de accesos? Esta acción no se puede deshacer.',
+      'Limpiar historial de accesos'
     ).then((confirmed) => {
       if (confirmed) {
         this.isLoading = true;
@@ -99,11 +91,11 @@ export class LoginHistoryComponent implements OnInit {
             this.loginLogoutLogs = [];
             this.filteredLogs = [];
             this.isLoading = false;
-            this.dialogService.success('Login/logout history has been cleared successfully.');
+            this.dialogService.success('El historial de accesos se eliminó correctamente.');
           },
           error: (error) => {
             console.error('Error clearing login history:', error);
-            this.dialogService.error('Failed to clear login history. Please try again.');
+            this.dialogService.error('No se pudo limpiar el historial. Inténtalo nuevamente.');
             this.isLoading = false;
           }
         });
@@ -111,6 +103,4 @@ export class LoginHistoryComponent implements OnInit {
     });
   }
 }
-
-
 

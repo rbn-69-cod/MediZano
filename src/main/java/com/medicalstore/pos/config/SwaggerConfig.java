@@ -16,25 +16,24 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Botica POS Peru API")
+                        .title("MediZano Botica API")
                         .version("1.0.0")
-                        .description("Backend de punto de venta para botica o farmacia en Peru")
+                        .description("Backend para ventas, inventario y gestión de botica en Perú")
                         .contact(new Contact()
-                                .name("Botica POS Peru")
-                                .email("soporte@boticapos.pe"))
+                                .name("MediZano Botica")
+                                .email("soporte@medizano.pe"))
                         .license(new License()
                                 .name("Propietaria")
-                                .url("https://boticapos.pe/licencia")))
+                                .url("https://medizano.pe/licencia")))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("JWT token authentication")));
+                                        .description("Autenticación con token JWT")));
     }
 }
-
 
 
 

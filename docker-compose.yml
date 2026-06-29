@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: medizano-db
+    restart: always
+    environment:
+      POSTGRES_DB: medical_store_pos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      TZ: America/Lima
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: .
+    container_name: medizano-backend
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/medical_store_pos
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      TZ: America/Lima

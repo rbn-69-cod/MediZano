@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BillingService } from '../../core/services/billing.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { BillResponse } from '../../core/models/billing.model';
+import { formatDateTime, parseBackendDate } from '../../core/utils/date-time.util';
 
 @Component({
   selector: 'app-purchase-history',
@@ -31,7 +32,7 @@ export class PurchaseHistoryComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading purchase history:', error);
-        this.dialogService.error('Error loading purchase history: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar el historial de ventas: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -69,7 +70,8 @@ export class PurchaseHistoryComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return parseBackendDate(dateString).toLocaleDateString('es-PE', {
+      timeZone: 'America/Lima',
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -77,13 +79,7 @@ export class PurchaseHistoryComponent implements OnInit {
   }
 
   formatDateTime(dateString: string): string {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateTime(dateString);
   }
 
   getPaymentStatusClass(status: string): string {
@@ -103,13 +99,13 @@ export class PurchaseHistoryComponent implements OnInit {
   getPaymentStatusLabel(status: string): string {
     switch (status) {
       case 'PAID':
-        return 'Paid';
+        return 'Pagado';
       case 'PENDING':
-        return 'Pending';
+        return 'Pendiente';
       case 'PARTIALLY_PAID':
-        return 'Partial';
+        return 'Pago parcial';
       case 'REFUNDED':
-        return 'Refunded';
+        return 'Devuelto';
       default:
         return status;
     }
@@ -135,4 +131,3 @@ export class PurchaseHistoryComponent implements OnInit {
     return remaining < 0 ? Math.abs(remaining) : 0;
   }
 }
-

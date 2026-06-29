@@ -9,16 +9,15 @@ import java.math.BigDecimal;
 
 @Data
 public class PaymentRequest {
-    @NotNull(message = "Payment mode is required")
+    @NotNull(message = "Selecciona un medio de pago")
     private Payment.PaymentMode mode;
     
-    @NotNull(message = "Amount is required")
-    @Min(value = 0, message = "Amount must be positive")
+    @NotNull(message = "Ingresa el monto del pago")
+    @Min(value = 0, message = "El monto del pago debe ser positivo")
     private BigDecimal amount;
     
     private String paymentReference;
 }
-
 
 
 

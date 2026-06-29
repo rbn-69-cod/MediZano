@@ -1219,6 +1219,21 @@
   max-height: 32px;
 }
 
+.payment-applied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-2;
+  flex: 1.5;
+  min-height: 32px;
+  padding: $space-1 $space-2;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  font-size: $font-size-sm;
+  white-space: nowrap;
+}
+
 /* Cash Fields */
 .cash-fields {
   display: flex;
@@ -1239,6 +1254,25 @@
   color: var(--text-primary) !important;
   min-height: 32px;
   max-height: 32px;
+}
+
+.btn-exact-cash {
+  height: 32px;
+  padding: 0 $space-3;
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  background: var(--surface-interactive);
+  color: var(--text-primary);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  white-space: nowrap;
+  @include transition-fast();
+
+  &:hover {
+    background: var(--surface-elevated);
+    border-color: var(--border-focus);
+  }
 }
 
 .balance-display {

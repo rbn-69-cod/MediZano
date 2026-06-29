@@ -54,7 +54,7 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken();
+    return !!this.getToken() && !!this.getCurrentUser();
   }
 
   getCurrentUser(): User | null {
@@ -85,6 +85,5 @@ export class AuthService {
     return userData ? JSON.parse(userData) : null;
   }
 }
-
 
 

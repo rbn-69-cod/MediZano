@@ -42,7 +42,7 @@ public class PdfBillService {
             PdfFont smallFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             
             // Header
-            Paragraph header = new Paragraph("BOTICA POS PERU")
+            Paragraph header = new Paragraph("MEDIZANO BOTICA")
                     .setFont(boldFont)
                     .setFontSize(20)
                     .setTextAlignment(TextAlignment.CENTER)
@@ -147,7 +147,7 @@ public class PdfBillService {
                         .setMarginBottom(10);
                 
                 for (PaymentResponse payment : bill.getPayments()) {
-                    paymentTable.addCell(createCell(payment.getMode().toString(), normalFont, 9, false));
+                    paymentTable.addCell(createCell(formatPaymentMode(payment.getMode().toString()), normalFont, 9, false));
                     paymentTable.addCell(createCell(formatCurrency(payment.getAmount()), normalFont, 9, false)
                             .setTextAlignment(TextAlignment.RIGHT));
                 }
@@ -190,5 +190,13 @@ public class PdfBillService {
     private String formatCurrency(BigDecimal amount) {
         return "S/ " + String.format("%.2f", amount);
     }
-}
 
+    private String formatPaymentMode(String mode) {
+        return switch (mode) {
+            case "CASH" -> "Efectivo";
+            case "UPI" -> "Yape / Plin";
+            case "CARD" -> "Tarjeta";
+            default -> mode;
+        };
+    }
+}

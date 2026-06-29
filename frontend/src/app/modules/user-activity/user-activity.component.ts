@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuditLogService, AuditLogResponse } from '../../core/services/audit-log.service';
 import { DialogService } from '../../core/services/dialog.service';
+import { formatDateTime } from '../../core/utils/date-time.util';
 
 @Component({
   selector: 'app-user-activity',
@@ -78,20 +79,62 @@ export class UserActivityComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    return formatDateTime(dateString);
+  }
+
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = {
+      ADMIN: 'Administrador', CASHIER: 'Cajero', STOCK_MONITOR: 'Supervisor de inventario',
+      STOCK_KEEPER: 'Encargado de almacén', CUSTOMER_SUPPORT: 'Atención al cliente',
+      ANALYST: 'Analista', MANAGER: 'Gerente'
+    };
+    return labels[role] || role;
+  }
+
+  getActionLabel(action: string): string {
+    const labels: Record<string, string> = {
+      BILL_CREATED: 'Venta registrada', BILL_CANCELLED: 'Venta anulada',
+      PAYMENT_RECEIVED: 'Pago recibido', REFUND_PROCESSED: 'Reembolso procesado',
+      STOCK_ADJUSTED: 'Inventario ajustado', STOCK_UPDATED: 'Inventario actualizado',
+      PRICE_OVERRIDE: 'Precio modificado', MEDICINE_ADDED: 'Medicamento agregado',
+      MEDICINE_UPDATED: 'Medicamento actualizado', MEDICINE_DELETED: 'Medicamento eliminado',
+      BATCH_ADDED: 'Lote agregado', BATCH_UPDATED: 'Lote actualizado', BATCH_DELETED: 'Lote eliminado',
+      USER_LOGIN: 'Ingreso al sistema', USER_LOGOUT: 'Cierre de sesión',
+      USER_PASSWORD_CHANGED: 'Contraseña actualizada', USER_STATUS_CHANGED: 'Estado de usuario actualizado'
+    };
+    return labels[action] || action.replace(/_/g, ' ');
+  }
+
+  getEntityLabel(entity: string): string {
+    const labels: Record<string, string> = {
+      USER: 'Usuario', MEDICINE: 'Medicamento', BATCH: 'Lote', BILL: 'Venta',
+      RETURN: 'Devolución', STOCK: 'Inventario', PAYMENT: 'Pago'
+    };
+    return labels[entity.toUpperCase()] || entity;
+  }
+
+  getDescriptionLabel(description: string): string {
+    return description
+      .replace('User logged in', 'El usuario ingresó al sistema')
+      .replace('User logged out', 'El usuario cerró sesión')
+      .replace('Bill created:', 'Venta registrada:')
+      .replace('Bill cancelled:', 'Venta anulada:')
+      .replace('Medicine created:', 'Medicamento creado:')
+      .replace('Medicine updated:', 'Medicamento actualizado:')
+      .replace('Medicine deleted:', 'Medicamento eliminado:')
+      .replace('Medicine status updated', 'Estado del medicamento actualizado')
+      .replace('Batch created:', 'Lote creado:')
+      .replace('Batch updated:', 'Lote actualizado:')
+      .replace('Batch deleted:', 'Lote eliminado:')
+      .replace('Stock updated for batch:', 'Inventario actualizado para el lote:')
+      .replace('Return processed:', 'Devolución procesada:')
+      .replace('Password changed', 'Contraseña actualizada');
   }
 
   clearAllLogs(): void {
     this.dialogService.confirm(
-      'Are you sure you want to delete all activity logs? This action cannot be undone.',
-      'Clear All Activity Logs'
+      '¿Deseas eliminar todos los registros de actividad? Esta acción no se puede deshacer.',
+      'Limpiar actividad de usuarios'
     ).then((confirmed) => {
       if (confirmed) {
         this.isLoading = true;
@@ -102,11 +145,11 @@ export class UserActivityComponent implements OnInit {
             this.uniqueUsers = [];
             this.uniqueActions = [];
             this.isLoading = false;
-            this.dialogService.success('All activity logs have been cleared successfully.');
+            this.dialogService.success('Los registros de actividad se eliminaron correctamente.');
           },
           error: (error) => {
             console.error('Error clearing audit logs:', error);
-            this.dialogService.error('Failed to clear activity logs. Please try again.');
+            this.dialogService.error('No se pudieron limpiar los registros. Inténtalo nuevamente.');
             this.isLoading = false;
           }
         });
@@ -114,6 +157,3 @@ export class UserActivityComponent implements OnInit {
     });
   }
 }
-
-
-

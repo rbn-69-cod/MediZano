@@ -105,9 +105,21 @@ export class AppShellComponent implements OnInit {
     return this.currentRoute.startsWith(route);
   }
 
+  getRoleLabel(role: UserRole | string): string {
+    const labels: Record<string, string> = {
+      ADMIN: 'Administrador',
+      CASHIER: 'Cajero',
+      STOCK_MONITOR: 'Supervisor de inventario',
+      STOCK_KEEPER: 'Encargado de almacén',
+      CUSTOMER_SUPPORT: 'Atención al cliente',
+      ANALYST: 'Analista',
+      MANAGER: 'Gerente'
+    };
+    return labels[role] || role;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
 }
-

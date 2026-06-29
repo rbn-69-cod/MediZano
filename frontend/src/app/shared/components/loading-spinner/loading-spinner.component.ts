@@ -5,13 +5,12 @@ import { Component } from '@angular/core';
   template: `
     <div class="d-flex justify-content-center align-items-center p-4">
       <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">Cargando...</span>
       </div>
     </div>
   `
 })
 export class LoadingSpinnerComponent {}
-
 
 
 

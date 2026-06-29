@@ -57,7 +57,7 @@ export class InventoryComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading expired batches:', error);
-        this.dialogService.error('Error loading expired batches: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar los lotes vencidos: ' + (error.message || 'Error desconocido'));
         this.isLoading = false;
       }
     });
@@ -70,7 +70,7 @@ export class InventoryComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading low stock batches:', error);
-        this.dialogService.error('Error loading low stock batches: ' + (error.message || 'Unknown error'));
+        this.dialogService.error('Error al cargar los lotes con stock bajo: ' + (error.message || 'Error desconocido'));
       }
     });
   }
@@ -186,4 +186,3 @@ export class InventoryComponent implements OnInit {
     });
   }
 }
-

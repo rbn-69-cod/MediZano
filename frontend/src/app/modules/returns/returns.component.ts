@@ -5,6 +5,7 @@ import { ReturnService } from '../../core/services/return.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { BillResponse, BillItemResponse } from '../../core/models/billing.model';
 import { ReturnRequest, ReturnItemRequest, ReturnResponse } from '../../core/models/return.model';
+import { formatDateTime } from '../../core/utils/date-time.util';
 
 @Component({
   selector: 'app-returns',
@@ -52,7 +53,7 @@ export class ReturnsComponent implements OnInit {
         this.isLoadingHistory = false;
       },
       error: (error) => {
-        this.dialogService.error(error.message || 'Error loading return history');
+        this.dialogService.error(error.message || 'Error al cargar el historial de devoluciones');
         this.isLoadingHistory = false;
       }
     });
@@ -69,13 +70,13 @@ export class ReturnsComponent implements OnInit {
     this.billingService.getBillByBillNumber(billNumber).subscribe({
       next: (bill) => {
         if (bill.cancelled) {
-          this.dialogService.warning('This bill has been cancelled');
+          this.dialogService.warning('Esta venta fue anulada');
           this.bill = null;
           return;
         }
 
         if (bill.paymentStatus !== 'PAID') {
-          this.dialogService.warning('Can only process returns for paid bills');
+          this.dialogService.warning('Solo se pueden procesar devoluciones de ventas pagadas');
           this.bill = null;
           return;
         }
@@ -85,7 +86,7 @@ export class ReturnsComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        this.dialogService.error(error.message || 'Bill not found');
+        this.dialogService.error(error.message || 'No se encontró la venta');
         this.bill = null;
         this.isLoading = false;
       }
@@ -109,7 +110,7 @@ export class ReturnsComponent implements OnInit {
     const selectedItem = this.selectedItems.find(si => si.item.id === itemId);
     if (selectedItem) {
       if (quantity > selectedItem.item.quantity) {
-        this.dialogService.warning(`Cannot return more than original quantity (${selectedItem.item.quantity})`);
+        this.dialogService.warning(`No puedes devolver más que la cantidad original (${selectedItem.item.quantity})`);
         return;
       }
       selectedItem.returnQuantity = quantity;
@@ -141,7 +142,7 @@ export class ReturnsComponent implements OnInit {
     }
 
     if (this.selectedItems.length === 0) {
-      this.dialogService.warning('Please select items to return');
+      this.dialogService.warning('Selecciona los productos que deseas devolver');
       return;
     }
 
@@ -168,24 +169,24 @@ export class ReturnsComponent implements OnInit {
               this.processedReturn = returns.sort((a, b) => 
                 new Date(b.returnDate).getTime() - new Date(a.returnDate).getTime()
               )[0];
-              this.dialogService.success(`Return processed successfully! Return Number: ${this.processedReturn.returnNumber}`);
+              this.dialogService.success(`Devolución procesada correctamente. Número: ${this.processedReturn.returnNumber}`);
               // Reload history
               this.loadReturnHistory();
             } else {
-              this.dialogService.success('Return processed successfully');
+              this.dialogService.success('Devolución procesada correctamente');
               this.resetForm();
             }
             this.isProcessing = false;
           },
           error: () => {
-            this.dialogService.success('Return processed successfully');
+            this.dialogService.success('Devolución procesada correctamente');
             this.resetForm();
             this.isProcessing = false;
           }
         });
       },
       error: (error) => {
-        this.dialogService.error(error.message || 'Error processing return');
+        this.dialogService.error(error.message || 'Error al procesar la devolución');
         this.isProcessing = false;
       }
     });
@@ -212,7 +213,7 @@ export class ReturnsComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleString();
+    return formatDateTime(dateString);
   }
 
   getTotalRefunded(): number {
@@ -223,4 +224,3 @@ export class ReturnsComponent implements OnInit {
     return item.id || index;
   }
 }
-

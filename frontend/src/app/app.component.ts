@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from './auth/auth.service';
 import { UserRole } from './core/models/user.model';
@@ -9,10 +9,12 @@ import { ThemeService } from './core/services/theme.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent implements OnInit {
-  title = 'Medical Store POS';
+export class AppComponent implements OnInit, OnDestroy {
+  title = 'MediZano';
   isAuthenticated = false;
+  isStarting = true;
   readonly UserRole = UserRole;
+  private startupTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     public authService: AuthService,
@@ -31,6 +33,16 @@ export class AppComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.isAuthenticated = !!user;
     });
+
+    this.startupTimer = setTimeout(() => {
+      this.isStarting = false;
+    }, 1800);
+  }
+
+  ngOnDestroy(): void {
+    if (this.startupTimer) {
+      clearTimeout(this.startupTimer);
+    }
   }
 
   logout(): void {
@@ -38,4 +50,3 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/auth/login']);
   }
 }
-

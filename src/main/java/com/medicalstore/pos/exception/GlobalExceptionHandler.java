@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation Failed")
-                .message("Request validation failed")
+                .error("Validación fallida")
+                .message("Revisa los datos enviados")
                 .path(request.getRequestURI())
                 .fieldErrors(fieldErrors)
                 .build();
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
+                .error("Solicitud inválida")
                 .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
@@ -65,8 +65,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.FORBIDDEN.value())
-                .error("Access Denied")
-                .message("You do not have permission to access this resource. Please contact administrator.")
+                .error("Acceso restringido")
+                .message("No tienes permiso para acceder a este recurso. Comunícate con el administrador.")
                 .path(request.getRequestURI())
                 .build();
         
@@ -80,8 +80,8 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .error("Invalid Credentials")
-                .message("Invalid username or password. Please check your credentials and try again.")
+                .error("Credenciales inválidas")
+                .message("Usuario o contraseña incorrectos. Revisa tus datos e intenta nuevamente.")
                 .path(request.getRequestURI())
                 .build();
         
@@ -92,15 +92,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex, HttpServletRequest request) {
         
-        String message = "Authentication failed. Please check your credentials.";
-        if (ex.getMessage() != null && !ex.getMessage().isEmpty()) {
+        String message = "No se pudo autenticar. Revisa tus credenciales.";
+        if (ex.getMessage() != null && !ex.getMessage().isEmpty()
+                && !ex.getMessage().toLowerCase().contains("bad credentials")) {
             message = ex.getMessage();
         }
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
-                .error("Unauthorized")
+                .error("No autorizado")
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
@@ -118,13 +119,13 @@ public class GlobalExceptionHandler {
         // Include actual exception message in response for better debugging
         String errorMessage = ex.getMessage();
         if (errorMessage == null || errorMessage.isEmpty()) {
-            errorMessage = "An unexpected error occurred: " + ex.getClass().getSimpleName();
+            errorMessage = "Ocurrió un error inesperado: " + ex.getClass().getSimpleName();
         }
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error("Internal Server Error")
+                .error("Error interno del servidor")
                 .message(errorMessage)
                 .path(request.getRequestURI())
                 .build();
@@ -132,4 +133,3 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
-

@@ -43,7 +43,7 @@ public class BatchService {
         Medicine medicine = medicineService.getMedicineEntity(request.getMedicineId());
         
         if (request.getExpiryDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Expiry date cannot be in the past");
+            throw new RuntimeException("La fecha de vencimiento no puede estar en el pasado");
         }
         
         Batch batch = Batch.builder()
@@ -137,13 +137,13 @@ public class BatchService {
         // If no single batch has enough, check total available
         Integer totalAvailable = batchRepository.getTotalAvailableQuantity(medicine, LocalDate.now());
         if (totalAvailable < quantity) {
-            throw new RuntimeException("Insufficient stock for medicine: " + medicine.getName() + 
-                    ". Available: " + totalAvailable + ", Required: " + quantity);
+            throw new RuntimeException("Stock insuficiente para " + medicine.getName() + 
+                    ". Disponible: " + totalAvailable + ", requerido: " + quantity);
         }
         
         // Return first batch (will be handled by allocating from multiple batches if needed)
         if (batches.isEmpty()) {
-            throw new RuntimeException("No available batches found for medicine: " + medicine.getName());
+            throw new RuntimeException("No hay lotes disponibles para " + medicine.getName());
         }
         
         return batches.get(0);
@@ -152,11 +152,11 @@ public class BatchService {
     @Transactional
     public void deductStock(Long batchId, Integer quantity) {
         Batch batch = batchRepository.findByIdForUpdate(batchId)
-                .orElseThrow(() -> new RuntimeException("Batch not found: " + batchId));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado: " + batchId));
         
         if (!batch.hasStock(quantity)) {
-            throw new RuntimeException("Insufficient stock in batch: " + batch.getBatchNumber() + 
-                    ". Available: " + batch.getQuantityAvailable() + ", Required: " + quantity);
+            throw new RuntimeException("Stock insuficiente en el lote " + batch.getBatchNumber() + 
+                    ". Disponible: " + batch.getQuantityAvailable() + ", requerido: " + quantity);
         }
         
         batch.setQuantityAvailable(batch.getQuantityAvailable() - quantity);
@@ -166,7 +166,7 @@ public class BatchService {
     @Transactional
     public void restoreStock(Long batchId, Integer quantity) {
         Batch batch = batchRepository.findById(batchId)
-                .orElseThrow(() -> new RuntimeException("Batch not found: " + batchId));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado: " + batchId));
         
         batch.setQuantityAvailable(batch.getQuantityAvailable() + quantity);
         batchRepository.save(batch);
@@ -175,13 +175,13 @@ public class BatchService {
     @Transactional(readOnly = true)
     public Batch getBatchEntity(Long id) {
         return batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
     }
     
     @Transactional(readOnly = true)
     public BatchResponse getBatchById(Long id) {
         Batch batch = batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
         return mapToResponse(batch);
     }
     
@@ -193,10 +193,10 @@ public class BatchService {
     @Transactional
     public BatchResponse updateBatch(Long id, UpdateBatchRequest request, User user, HttpServletRequest httpRequest) {
         Batch batch = batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
         
         if (request.getExpiryDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("Expiry date cannot be in the past");
+            throw new RuntimeException("La fecha de vencimiento no puede estar en el pasado");
         }
         
         String oldValue = batch.toString();
@@ -219,7 +219,7 @@ public class BatchService {
     @Transactional
     public BatchResponse updateStock(Long id, UpdateStockRequest request, User user, HttpServletRequest httpRequest) {
         Batch batch = batchRepository.findByIdForUpdate(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
         
         Integer oldQuantity = batch.getQuantityAvailable();
         batch.setQuantityAvailable(request.getQuantityAvailable());
@@ -235,13 +235,13 @@ public class BatchService {
     @Transactional
     public void deleteBatch(Long id, User user, HttpServletRequest httpRequest) {
         Batch batch = batchRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Batch not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
         
         // Check if batch has been used in bills (if quantity available is less than what was initially added)
         // Note: We can't check initialQuantity directly, so we'll allow deletion if quantity is 0
         // In a real system, you'd track initial quantity separately
         if (batch.getQuantityAvailable() > 0) {
-            throw new RuntimeException("Cannot delete batch with available stock. Please set quantity to 0 first or use the stock.");
+            throw new RuntimeException("No se puede eliminar un lote con stock disponible. Primero deja la cantidad en 0 o usa el stock.");
         }
         
         String batchInfo = batch.toString();
@@ -268,4 +268,3 @@ public class BatchService {
                 .build();
     }
 }
-

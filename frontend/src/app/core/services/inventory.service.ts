@@ -21,7 +21,7 @@ export class InventoryService {
 
   searchMedicines(searchTerm: string): Observable<Medicine[]> {
     if (!searchTerm || searchTerm.trim().length < 2) {
-      return throwError(() => new Error('Search term must be at least 2 characters'));
+      return throwError(() => new Error('La búsqueda debe tener al menos 2 caracteres'));
     }
     return this.apiService.get<Medicine[]>(`/pharmacist/medicines/search?name=${encodeURIComponent(searchTerm.trim())}`)
       .pipe(
@@ -125,4 +125,3 @@ export class InventoryService {
   }
 
 }
-

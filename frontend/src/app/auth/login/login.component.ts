@@ -50,14 +50,13 @@ export class LoginComponent implements OnInit {
       next: () => {
         const user = this.authService.getCurrentUser();
         const defaultRoute = user ? this.getDefaultRouteForRole(user.role) : '/billing';
-        // Use returnUrl if provided, otherwise use role-based default
-        const targetRoute = this.returnUrl && this.returnUrl !== '/billing' 
+        const targetRoute = this.returnUrl && this.canAccessRoute(this.returnUrl, user?.role)
           ? this.returnUrl 
           : defaultRoute;
         this.router.navigate([targetRoute]);
       },
       error: (error) => {
-        this.errorMessage = error.message || 'No se pudo iniciar sesion. Revisa tus credenciales.';
+        this.errorMessage = error.message || 'No se pudo iniciar sesión. Revisa tus credenciales.';
         this.isLoading = false;
       }
     });
@@ -87,6 +86,28 @@ export class LoginComponent implements OnInit {
     }
   }
 
+  private canAccessRoute(route: string, role?: UserRole | string): boolean {
+    if (!role || !route || route.startsWith('/auth')) {
+      return false;
+    }
+
+    if (role === UserRole.ADMIN) {
+      return true;
+    }
+
+    const cleanRoute = route.split('?')[0].split('#')[0];
+    const roleRoutes: Record<string, string[]> = {
+      [UserRole.CASHIER]: ['/billing'],
+      [UserRole.STOCK_MONITOR]: ['/inventory'],
+      [UserRole.STOCK_KEEPER]: ['/medicines'],
+      [UserRole.CUSTOMER_SUPPORT]: ['/returns'],
+      [UserRole.ANALYST]: ['/reports'],
+      [UserRole.MANAGER]: ['/reports', '/purchase-history']
+    };
+
+    return (roleRoutes[role] || []).some(allowedRoute => cleanRoute.startsWith(allowedRoute));
+  }
+
   get username() {
     return this.loginForm.get('username');
   }
@@ -99,6 +120,4 @@ export class LoginComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 }
-
-
 

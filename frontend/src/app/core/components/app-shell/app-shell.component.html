@@ -2,17 +2,14 @@
   <!-- Sidebar -->
   <aside 
     class="sidebar"
-    [class.sidebar-expanded]="sidebarExpanded"
-    (mouseenter)="sidebarExpanded = true"
-    (mouseleave)="sidebarExpanded = false"
   >
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="9" y="3" width="6" height="18" rx="2" fill="currentColor"/>
+          <rect x="3" y="9" width="18" height="6" rx="2" fill="currentColor"/>
         </svg>
-        <span class="logo-text" *ngIf="sidebarExpanded">Botica POS Peru</span>
+        <span class="logo-text">MediZano Botica</span>
       </div>
     </div>
 
@@ -26,7 +23,7 @@
         [attr.aria-label]="item.label"
       >
         <svg-icon [name]="item.icon" class="nav-icon"></svg-icon>
-        <span class="nav-label" *ngIf="sidebarExpanded">{{ item.label }}</span>
+        <span class="nav-label">{{ item.label }}</span>
       </a>
     </nav>
 
@@ -40,11 +37,11 @@
             {{ user.fullName || user.username }}
           </div>
           <div class="user-role" *ngIf="authService.currentUser$ | async as user">
-            {{ user.role }}
+            {{ getRoleLabel(user.role) }}
           </div>
         </div>
       </div>
-      <button class="btn-logout" (click)="logout()" [attr.aria-label]="'Cerrar sesion'">
+      <button class="btn-logout" (click)="logout()" [attr.aria-label]="'Cerrar sesión'">
         <svg-icon name="logout" class="logout-icon"></svg-icon>
         <span class="logout-text">Salir</span>
       </button>
@@ -56,4 +53,3 @@
     <router-outlet></router-outlet>
   </main>
 </div>
-
