@@ -3,9 +3,9 @@ spring:
     name: medical-store-pos
 
   datasource:
-    url: jdbc:postgresql://postgres:5432/medical_store_pos
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/medical_store_pos}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -28,11 +28,11 @@ spring:
 
   security:
     jwt:
-      secret: MedicalStorePOSSecretKeyForJWTTokenGeneration2024Production
+      secret: ${JWT_SECRET:MedicalStorePOSSecretKeyForJWTTokenGeneration2024Production}
       expiration: 86400000
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 springdoc:
   api-docs:
