@@ -275,6 +275,11 @@
               </tr>
             </thead>
             <tbody>
+              <tr *ngIf="cashRegisterReport.cashierBreakdown.length === 0">
+                <td colspan="3">
+                  <span class="medicine-name">Detalle por cajero disponible cuando Render termine de actualizar el backend.</span>
+                </td>
+              </tr>
               <tr *ngFor="let cashier of cashRegisterReport.cashierBreakdown; trackBy: trackByCashierId">
                 <td>
                   <span class="medicine-name">{{ cashier.cashierName }}</span>
