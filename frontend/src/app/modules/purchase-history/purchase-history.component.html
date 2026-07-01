@@ -99,6 +99,7 @@
             <th>Total</th>
             <th>Estado de pago</th>
             <th>Cajero</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -156,6 +157,19 @@
             </td>
             <td class="cell-cashier">
               <span class="cashier-name">{{ bill.cashierName }}</span>
+            </td>
+            <td class="cell-actions">
+              <button
+                type="button"
+                class="btn-action btn-print"
+                (click)="reprintBillPdf(bill)"
+                [disabled]="isLoading"
+                title="Reimprimir PDF"
+                aria-label="Reimprimir PDF"
+              >
+                <svg-icon name="billing" [size]="16"></svg-icon>
+                <span>PDF</span>
+              </button>
             </td>
           </tr>
         </tbody>

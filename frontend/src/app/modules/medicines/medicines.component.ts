@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { InventoryService } from '../../core/services/inventory.service';
 import { DialogService } from '../../core/services/dialog.service';
 import { Medicine, CreateMedicineRequest, UpdateMedicineRequest } from '../../core/models/medicine.model';
-import { Batch, CreateBatchRequest, UpdateStockRequest } from '../../core/models/batch.model';
+import { Batch, CreateBatchRequest, UpdateBatchRequest } from '../../core/models/batch.model';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -53,7 +53,9 @@ export class MedicinesComponent implements OnInit, OnDestroy {
 
     // Stock management forms
     this.stockForm = this.fb.group({
-      quantityAvailable: [0, [Validators.required, Validators.min(0)]]
+      quantityAvailable: [0, [Validators.required, Validators.min(0)]],
+      purchasePrice: [0, [Validators.required, Validators.min(0)]],
+      sellingPrice: [0, [Validators.required, Validators.min(0)]]
     });
 
     this.batchForm = this.fb.group({
@@ -246,7 +248,9 @@ export class MedicinesComponent implements OnInit, OnDestroy {
     this.isEditingBatch = true;
     this.originalStockQuantity = batch.quantityAvailable; // Store original quantity
     this.stockForm.patchValue({
-      quantityAvailable: batch.quantityAvailable
+      quantityAvailable: batch.quantityAvailable,
+      purchasePrice: batch.purchasePrice,
+      sellingPrice: batch.sellingPrice
     });
   }
 
@@ -274,13 +278,17 @@ export class MedicinesComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const newQuantity = this.stockForm.value.quantityAvailable;
-    const request: UpdateStockRequest = {
-      quantityAvailable: newQuantity
+    const formValue = this.stockForm.value;
+    const request: UpdateBatchRequest = {
+      batchNumber: this.editingBatch.batchNumber,
+      expiryDate: this.editingBatch.expiryDate,
+      quantityAvailable: formValue.quantityAvailable,
+      purchasePrice: this.roundUpToCashIncrement(formValue.purchasePrice),
+      sellingPrice: this.roundUpToCashIncrement(formValue.sellingPrice)
     };
 
     this.isLoading = true;
-    this.inventoryService.updateStock(this.editingBatch.id, request).subscribe({
+    this.inventoryService.updateBatch(this.editingBatch.id, request).subscribe({
       next: () => {
         if (this.managingMedicine) {
           this.loadBatches(this.managingMedicine.id);
@@ -290,7 +298,7 @@ export class MedicinesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        this.dialogService.error(error.message || 'Error al actualizar stock');
+        this.dialogService.error(error.message || 'Error al actualizar lote');
         this.isLoading = false;
       }
     });

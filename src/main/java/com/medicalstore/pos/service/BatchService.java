@@ -198,7 +198,8 @@ public class BatchService {
         Batch batch = batchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lote no encontrado con id: " + id));
         
-        if (request.getExpiryDate().isBefore(LocalDate.now())) {
+        if (request.getExpiryDate().isBefore(LocalDate.now())
+                && !request.getExpiryDate().isEqual(batch.getExpiryDate())) {
             throw new RuntimeException("La fecha de vencimiento no puede estar en el pasado");
         }
         

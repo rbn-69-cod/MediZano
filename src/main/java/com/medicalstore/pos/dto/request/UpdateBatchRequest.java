@@ -1,6 +1,5 @@
 package com.medicalstore.pos.dto.request;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,6 @@ public class UpdateBatchRequest {
     private String batchNumber;
     
     @NotNull(message = "Expiry date is required")
-    @Future(message = "Expiry date must be in the future")
     private LocalDate expiryDate;
     
     @NotNull(message = "Purchase price is required")
@@ -31,7 +29,6 @@ public class UpdateBatchRequest {
     @Min(value = 0, message = "Quantity must be at least 0")
     private Integer quantityAvailable;
 }
-
 
 
 

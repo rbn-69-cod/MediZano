@@ -130,4 +130,31 @@ export class PurchaseHistoryComponent implements OnInit {
     const remaining = this.getRemainingBalance(bill);
     return remaining < 0 ? Math.abs(remaining) : 0;
   }
+
+  reprintBillPdf(bill: BillResponse): void {
+    if (!bill?.id) {
+      this.dialogService.error('No se pudo identificar el comprobante.');
+      return;
+    }
+
+    this.isLoading = true;
+    this.billingService.downloadBillPdf(bill.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Comprobante_${bill.billNumber}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error reprinting bill PDF:', error);
+        this.dialogService.error('Error al reimprimir PDF: ' + (error.message || 'Error desconocido'));
+        this.isLoading = false;
+      }
+    });
+  }
 }

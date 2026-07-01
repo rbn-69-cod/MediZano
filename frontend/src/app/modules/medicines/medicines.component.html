@@ -9,8 +9,8 @@
         </h1>
         <p class="screen-subtitle">Administra el catalogo de medicamentos</p>
       </div>
-      <button 
-        class="btn-add-medicine" 
+      <button
+        class="btn-add-medicine"
         (click)="openForm()"
         aria-label="Agregar medicamento"
       >
@@ -34,9 +34,9 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Nombre del medicamento <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="name"
                 placeholder="Ingresa el nombre del medicamento"
               >
@@ -47,9 +47,9 @@
 
             <div class="form-group">
               <label class="form-label">Laboratorio <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="manufacturer"
                 placeholder="Ingresa el laboratorio"
               >
@@ -60,9 +60,9 @@
 
             <div class="form-group">
               <label class="form-label">Categoria</label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="category"
                 placeholder="Ingresa la categoría (opcional)"
               >
@@ -70,9 +70,9 @@
 
             <div class="form-group">
               <label class="form-label">Codigo de barras (GTIN/EAN)</label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="barcode"
                 placeholder="Ingresa el código del producto (opcional)"
               >
@@ -81,9 +81,9 @@
 
             <div class="form-group">
               <label class="form-label">Codigo de producto <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="hsnCode"
                 placeholder="Ingresa el código"
               >
@@ -94,12 +94,12 @@
 
             <div class="form-group">
               <label class="form-label">IGV % <span class="required">*</span></label>
-              <input 
-                type="number" 
-                class="form-input" 
-                formControlName="gstPercentage" 
-                step="0.01" 
-                min="0" 
+              <input
+                type="number"
+                class="form-input"
+                formControlName="gstPercentage"
+                step="0.01"
+                min="0"
                 max="100"
                 placeholder="0.00"
               >
@@ -110,9 +110,9 @@
 
             <div class="form-group form-group-checkbox">
               <label class="checkbox-label">
-                <input 
-                  type="checkbox" 
-                  class="checkbox-input" 
+                <input
+                  type="checkbox"
+                  class="checkbox-input"
                   formControlName="prescriptionRequired"
                 >
                 <span class="checkbox-text">Requiere receta</span>
@@ -129,9 +129,9 @@
 
             <div class="form-group">
               <label class="form-label">Stock inicial</label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="initialStock"
                 min="0"
                 step="1"
@@ -142,9 +142,9 @@
 
             <div class="form-group">
               <label class="form-label">Numero de lote</label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="batchNumber"
                 placeholder="Ingresa el lote (obligatorio si agregas stock)"
               >
@@ -152,9 +152,9 @@
 
             <div class="form-group">
               <label class="form-label">Fecha de vencimiento</label>
-              <input 
-                type="date" 
-                class="form-input" 
+              <input
+                type="date"
+                class="form-input"
                 formControlName="expiryDate"
                 [min]="minDate"
                 placeholder="Selecciona fecha de vencimiento"
@@ -163,9 +163,9 @@
 
             <div class="form-group">
               <label class="form-label">Precio de compra (S/)</label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="purchasePrice"
                 step="0.10"
                 min="0"
@@ -175,9 +175,9 @@
 
             <div class="form-group">
               <label class="form-label">Precio de venta (S/)</label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="sellingPrice"
                 step="0.10"
                 min="0"
@@ -188,16 +188,16 @@
           </div>
 
           <div class="form-actions">
-            <button 
-              type="button" 
-              class="btn-secondary" 
+            <button
+              type="button"
+              class="btn-secondary"
               (click)="closeForm()"
             >
               Cancelar
             </button>
-            <button 
-              type="submit" 
-              class="btn-primary" 
+            <button
+              type="submit"
+              class="btn-primary"
               [disabled]="medicineForm.invalid || isLoading"
             >
               <span *ngIf="isLoading" class="spinner-mini"></span>
@@ -253,13 +253,13 @@
             </td>
             <td class="cell-stock">
               <div class="stock-info">
-                <div class="stock-quantity" 
+                <div class="stock-quantity"
                      [class.stock-out]="medicine.outOfStock"
                      [class.stock-low]="medicine.lowStock && !medicine.outOfStock"
                      [class.stock-available]="!medicine.lowStock && !medicine.outOfStock">
-                  <svg-icon 
-                    [name]="medicine.outOfStock ? 'error' : (medicine.lowStock ? 'warning' : 'success')" 
-                    class="stock-icon" 
+                  <svg-icon
+                    [name]="medicine.outOfStock ? 'error' : (medicine.lowStock ? 'warning' : 'success')"
+                    class="stock-icon"
                     [size]="16">
                   </svg-icon>
                   <span class="stock-value">
@@ -268,8 +268,8 @@
                   <span class="stock-unit">unid.</span>
                 </div>
                 <div class="stock-status" *ngIf="medicine.outOfStock || medicine.lowStock">
-                  <span 
-                    class="stock-badge" 
+                  <span
+                    class="stock-badge"
                     [class.badge-error]="medicine.outOfStock"
                     [class.badge-warning]="medicine.lowStock && !medicine.outOfStock">
                     {{ medicine.outOfStock ? 'Sin stock' : 'Stock bajo' }}
@@ -287,22 +287,22 @@
               <span class="gst-value">{{ medicine.gstPercentage }}%</span>
             </td>
             <td class="cell-prescription">
-              <span 
-                class="badge badge-warning" 
+              <span
+                class="badge badge-warning"
                 *ngIf="medicine.prescriptionRequired"
               >
                 Requiere
               </span>
-              <span 
-                class="badge badge-success" 
+              <span
+                class="badge badge-success"
                 *ngIf="!medicine.prescriptionRequired"
               >
                 No requiere
               </span>
             </td>
             <td class="cell-status">
-              <span 
-                class="badge" 
+              <span
+                class="badge"
                 [class.badge-success]="medicine.status === 'ACTIVE'"
                 [class.badge-secondary]="medicine.status === 'DISCONTINUED'"
               >
@@ -311,24 +311,24 @@
             </td>
             <td class="cell-actions">
               <div class="action-buttons">
-                <button 
-                  class="btn-action btn-stock" 
+                <button
+                  class="btn-action btn-stock"
                   (click)="openStockModal(medicine)"
                   aria-label="Gestionar stock"
                   title="Gestionar stock"
                 >
                   <svg-icon name="inventory" [size]="16"></svg-icon>
                 </button>
-                <button 
-                  class="btn-action btn-edit" 
+                <button
+                  class="btn-action btn-edit"
                   (click)="openForm(medicine)"
                   aria-label="Editar medicamento"
                   title="Editar"
                 >
                   <svg-icon name="medicines" [size]="16"></svg-icon>
                 </button>
-                <button 
-                  class="btn-action btn-delete" 
+                <button
+                  class="btn-action btn-delete"
                   (click)="deleteMedicine(medicine)"
                   aria-label="Eliminar medicamento"
                   title="Eliminar"
@@ -356,8 +356,8 @@
       <div class="modal-body">
         <!-- Add New Batch Button -->
         <div class="stock-actions-header">
-          <button 
-            class="btn-add-batch" 
+          <button
+            class="btn-add-batch"
             (click)="openNewBatchModal()"
             aria-label="Add new batch"
           >
@@ -370,8 +370,8 @@
         <div class="batches-section" *ngIf="batches.length > 0">
           <h4 class="section-title">Lotes registrados</h4>
           <div class="batches-list">
-            <div 
-              *ngFor="let batch of batches" 
+            <div
+              *ngFor="let batch of batches"
               class="batch-card"
               [class.batch-expired]="batch.expired"
               [class.batch-expiring]="isExpiringSoon(batch.expiryDate)"
@@ -387,16 +387,16 @@
                   </p>
                 </div>
                 <div class="batch-actions">
-                  <button 
-                    class="btn-action-small btn-update-stock" 
+                  <button
+                    class="btn-action-small btn-update-stock"
                     (click)="openUpdateStockModal(batch)"
-                    title="Update Stock"
+                    title="Editar stock y precios"
                   >
                     <svg-icon name="inventory" [size]="14"></svg-icon>
-                    Actualizar stock
+                    Editar lote
                   </button>
-                  <button 
-                    class="btn-action-small btn-delete" 
+                  <button
+                    class="btn-action-small btn-delete"
                     (click)="deleteBatch(batch)"
                     title="Delete Batch"
                     [disabled]="isLoading"
@@ -408,7 +408,7 @@
               <div class="batch-content">
                 <div class="batch-row">
                   <span class="batch-label">Stock:</span>
-                  <span 
+                  <span
                     class="batch-value"
                     [class.value-warning]="isLowStock(batch.quantityAvailable)"
                     [class.value-danger]="batch.quantityAvailable === 0"
@@ -443,33 +443,65 @@
   <div class="modal-overlay" *ngIf="isEditingBatch && editingBatch && editingBatch.id !== 0" (click)="closeUpdateStockModal()">
     <div class="modal-container" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 class="modal-title">Actualizar stock - {{ editingBatch.batchNumber }}</h3>
+        <h3 class="modal-title">Editar lote - {{ editingBatch.batchNumber }}</h3>
         <button class="btn-close-modal" (click)="closeUpdateStockModal()" aria-label="Cerrar">
           <svg-icon name="error" class="close-icon" [size]="20"></svg-icon>
         </button>
       </div>
       <div class="modal-body">
         <form [formGroup]="stockForm" (ngSubmit)="updateStock()">
-          <div class="form-group">
-            <label class="form-label">Cantidad disponible <span class="required">*</span></label>
-            <input 
-              type="number" 
-              class="form-input" 
-              formControlName="quantityAvailable"
-              min="0"
-              step="1"
-              placeholder="Ingresa la cantidad"
-            >
-            <div class="form-error" *ngIf="stockForm.get('quantityAvailable')?.invalid && stockForm.get('quantityAvailable')?.touched">
-              Ingresa una cantidad valida (minimo 0)
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Cantidad disponible <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-input"
+                formControlName="quantityAvailable"
+                min="0"
+                step="1"
+                placeholder="Ingresa la cantidad"
+              >
+              <div class="form-error" *ngIf="stockForm.get('quantityAvailable')?.invalid && stockForm.get('quantityAvailable')?.touched">
+                Ingresa una cantidad valida (minimo 0)
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Precio de compra (S/) <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-input"
+                formControlName="purchasePrice"
+                min="0"
+                step="0.10"
+                placeholder="0.00"
+              >
+              <div class="form-error" *ngIf="stockForm.get('purchasePrice')?.invalid && stockForm.get('purchasePrice')?.touched">
+                Ingresa un costo valido
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Precio de venta (S/) <span class="required">*</span></label>
+              <input
+                type="number"
+                class="form-input"
+                formControlName="sellingPrice"
+                min="0"
+                step="0.10"
+                placeholder="0.00"
+              >
+              <div class="form-error" *ngIf="stockForm.get('sellingPrice')?.invalid && stockForm.get('sellingPrice')?.touched">
+                Ingresa un precio valido
+              </div>
             </div>
           </div>
-          
+
           <div class="form-actions">
             <button type="button" class="btn-secondary" (click)="closeUpdateStockModal()">Cancelar</button>
             <button type="submit" class="btn-primary" [disabled]="stockForm.invalid || isLoading">
               <span *ngIf="isLoading" class="spinner-mini"></span>
-              <span *ngIf="!isLoading">Actualizar stock</span>
+              <span *ngIf="!isLoading">Guardar cambios</span>
             </button>
           </div>
         </form>
@@ -491,9 +523,9 @@
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">Numero de lote <span class="required">*</span></label>
-              <input 
-                type="text" 
-                class="form-input" 
+              <input
+                type="text"
+                class="form-input"
                 formControlName="batchNumber"
                 placeholder="Ingresa el numero de lote"
               >
@@ -504,9 +536,9 @@
 
             <div class="form-group">
               <label class="form-label">Fecha de vencimiento <span class="required">*</span></label>
-              <input 
-                type="date" 
-                class="form-input" 
+              <input
+                type="date"
+                class="form-input"
                 formControlName="expiryDate"
                 [min]="minDate"
                 placeholder="Selecciona la fecha de vencimiento"
@@ -518,9 +550,9 @@
 
             <div class="form-group">
               <label class="form-label">Precio de compra (S/) <span class="required">*</span></label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="purchasePrice"
                 step="0.10"
                 min="0"
@@ -533,9 +565,9 @@
 
             <div class="form-group">
               <label class="form-label">Precio de venta (S/) <span class="required">*</span></label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="sellingPrice"
                 step="0.10"
                 min="0"
@@ -548,9 +580,9 @@
 
             <div class="form-group">
               <label class="form-label">Cantidad <span class="required">*</span></label>
-              <input 
-                type="number" 
-                class="form-input" 
+              <input
+                type="number"
+                class="form-input"
                 formControlName="quantityAvailable"
                 min="0"
                 step="1"
