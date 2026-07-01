@@ -1,5 +1,6 @@
 package com.medicalstore.pos.service;
 
+import com.medicalstore.pos.dto.response.CashRegisterReportResponse;
 import com.medicalstore.pos.dto.response.GstReportResponse;
 import com.medicalstore.pos.dto.response.SalesReportResponse;
 import com.medicalstore.pos.dto.response.StockReportResponse;
@@ -115,6 +116,82 @@ public class ReportingService {
                 .totalCard(totalCard)
                 .dailySales(dailySales)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public CashRegisterReportResponse getCashRegisterReport(LocalDate startDate, LocalDate endDate) {
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+
+        List<Bill> bills = billRepository.findBillsByDateRange(start, end).stream()
+                .filter(bill -> !bill.getCancelled())
+                .collect(Collectors.toList());
+
+        List<Payment> payments = paymentRepository.findPaymentsByDateRange(start, end).stream()
+                .filter(payment -> payment.getStatus() == Payment.PaymentStatus.COMPLETED)
+                .filter(payment -> payment.getBill() != null && !payment.getBill().getCancelled())
+                .collect(Collectors.toList());
+
+        BigDecimal subtotal = bills.stream()
+                .map(Bill::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalGst = bills.stream()
+                .map(Bill::getTotalGst)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalSales = bills.stream()
+                .map(Bill::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalCash = sumPaymentsByMode(payments, Payment.PaymentMode.CASH);
+        BigDecimal totalUpi = sumPaymentsByMode(payments, Payment.PaymentMode.UPI);
+        BigDecimal totalCard = sumPaymentsByMode(payments, Payment.PaymentMode.CARD);
+        BigDecimal totalCollected = totalCash.add(totalUpi).add(totalCard);
+        BigDecimal roundingAdjustment = totalSales.subtract(subtotal).subtract(totalGst);
+
+        Map<Long, List<Bill>> billsByCashier = bills.stream()
+                .collect(Collectors.groupingBy(bill -> bill.getCashier().getId()));
+
+        List<CashRegisterReportResponse.CashierBreakdown> cashierBreakdown = billsByCashier.values().stream()
+                .map(cashierBills -> {
+                    Bill firstBill = cashierBills.get(0);
+                    BigDecimal cashierTotal = cashierBills.stream()
+                            .map(Bill::getTotalAmount)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                    return CashRegisterReportResponse.CashierBreakdown.builder()
+                            .cashierId(firstBill.getCashier().getId())
+                            .cashierName(firstBill.getCashier().getFullName())
+                            .billCount(cashierBills.size())
+                            .totalAmount(cashierTotal)
+                            .build();
+                })
+                .sorted((a, b) -> b.getTotalAmount().compareTo(a.getTotalAmount()))
+                .collect(Collectors.toList());
+
+        return CashRegisterReportResponse.builder()
+                .startDate(startDate)
+                .endDate(endDate)
+                .totalBills(bills.size())
+                .totalPayments(payments.size())
+                .subtotal(subtotal)
+                .totalGst(totalGst)
+                .totalSales(totalSales)
+                .totalCash(totalCash)
+                .totalUpi(totalUpi)
+                .totalCard(totalCard)
+                .totalCollected(totalCollected)
+                .roundingAdjustment(roundingAdjustment)
+                .cashierBreakdown(cashierBreakdown)
+                .build();
+    }
+
+    private BigDecimal sumPaymentsByMode(List<Payment> payments, Payment.PaymentMode mode) {
+        return payments.stream()
+                .filter(payment -> payment.getMode() == mode)
+                .map(Payment::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     
     @Transactional(readOnly = true)
@@ -332,4 +409,3 @@ public class ReportingService {
                 .build();
     }
 }
-

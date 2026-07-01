@@ -15,7 +15,7 @@
   <!-- Date Range Form (Hidden for Stock Report) -->
   <div class="date-range-section" *ngIf="activeTab !== 'stock'">
     <div class="date-range-card">
-      <form [formGroup]="reportForm" (ngSubmit)="activeTab === 'sales' ? loadSalesReport() : loadGstReport()" class="date-form">
+      <form [formGroup]="reportForm" (ngSubmit)="loadActiveReport()" class="date-form">
         <div class="form-group">
           <label class="form-label">Fecha inicial</label>
           <input type="date" class="form-input" formControlName="startDate">
@@ -45,6 +45,13 @@
       (click)="onTabChange('sales')"
     >
       Ventas
+    </button>
+    <button
+      class="tab-button"
+      [class.tab-active]="activeTab === 'cash'"
+      (click)="onTabChange('cash')"
+    >
+      Caja diaria
     </button>
     <button
       class="tab-button"
@@ -154,6 +161,129 @@
                 </td>
                 <td class="cell-amount">
                   <span class="amount-value">S/ {{ daily.totalAmount | number:'1.2-2' }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cash Register Report -->
+  <div class="report-section" *ngIf="activeTab === 'cash'">
+    <div class="section-header">
+      <div class="section-header-content">
+        <svg-icon name="cash" class="section-icon" [size]="24"></svg-icon>
+        <div>
+          <h2 class="section-title">Caja diaria</h2>
+          <p class="section-subtitle">Resumen de cobros por metodo de pago</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isLoading && !cashRegisterReport" class="empty-state">
+      <div class="spinner"></div>
+      <p class="empty-state-text">Cargando caja diaria...</p>
+    </div>
+
+    <div *ngIf="!cashRegisterReport && !isLoading" class="empty-state">
+      <svg-icon name="cash" class="empty-icon" [size]="64"></svg-icon>
+      <h3 class="empty-title">No hay caja para mostrar</h3>
+      <p class="empty-message">No hay cobros para el rango seleccionado</p>
+    </div>
+
+    <div *ngIf="cashRegisterReport" class="report-content">
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="card-icon card-icon-primary">
+            <svg-icon name="billing" class="icon" [size]="32"></svg-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Ventas cobradas</span>
+            <span class="card-value">{{ cashRegisterReport.totalBills }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon card-icon-success">
+            <svg-icon name="cash" class="icon" [size]="32"></svg-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Efectivo en caja</span>
+            <span class="card-value">S/ {{ cashRegisterReport.totalCash | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon">
+            <svg-icon name="cash" class="icon" [size]="32"></svg-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Yape / Plin</span>
+            <span class="card-value">S/ {{ cashRegisterReport.totalUpi | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card">
+          <div class="card-icon card-icon-warning">
+            <svg-icon name="reports" class="icon" [size]="32"></svg-icon>
+          </div>
+          <div class="card-content">
+            <span class="card-label">Tarjeta</span>
+            <span class="card-value">S/ {{ cashRegisterReport.totalCard | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-cards">
+        <div class="summary-card">
+          <div class="card-content">
+            <span class="card-label">Total cobrado</span>
+            <span class="card-value">S/ {{ cashRegisterReport.totalCollected | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="card-content">
+            <span class="card-label">Subtotal</span>
+            <span class="card-value">S/ {{ cashRegisterReport.subtotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="card-content">
+            <span class="card-label">IGV</span>
+            <span class="card-value">S/ {{ cashRegisterReport.totalGst | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="card-content">
+            <span class="card-label">Redondeo</span>
+            <span class="card-value">S/ {{ cashRegisterReport.roundingAdjustment | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="breakdown-section">
+        <h3 class="breakdown-title">Detalle por cajero</h3>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Cajero</th>
+                <th>Ventas</th>
+                <th>Total vendido</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cashier of cashRegisterReport.cashierBreakdown; trackBy: trackByCashierId">
+                <td>
+                  <span class="medicine-name">{{ cashier.cashierName }}</span>
+                </td>
+                <td>
+                  <span class="bills-value">{{ cashier.billCount }}</span>
+                </td>
+                <td class="cell-amount">
+                  <span class="amount-value">S/ {{ cashier.totalAmount | number:'1.2-2' }}</span>
                 </td>
               </tr>
             </tbody>

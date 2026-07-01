@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ReportService } from '../../core/services/report.service';
 import { DialogService } from '../../core/services/dialog.service';
-import { SalesReportResponse, GstReportResponse, StockReportResponse } from '../../core/models/report.model';
+import { CashRegisterReportResponse, SalesReportResponse, GstReportResponse, StockReportResponse } from '../../core/models/report.model';
+
+type ReportTab = 'sales' | 'cash' | 'gst' | 'stock';
 
 @Component({
   selector: 'app-reports',
@@ -12,10 +14,11 @@ import { SalesReportResponse, GstReportResponse, StockReportResponse } from '../
 export class ReportsComponent implements OnInit {
   reportForm: FormGroup;
   salesReport: SalesReportResponse | null = null;
+  cashRegisterReport: CashRegisterReportResponse | null = null;
   gstReport: GstReportResponse | null = null;
   stockReport: StockReportResponse | null = null;
   isLoading = false;
-  activeTab: 'sales' | 'gst' | 'stock' = 'sales';
+  activeTab: ReportTab = 'sales';
 
   constructor(
     private fb: FormBuilder,
@@ -28,6 +31,27 @@ export class ReportsComponent implements OnInit {
     this.reportForm = this.fb.group({
       startDate: [this.formatDate(firstDay), Validators.required],
       endDate: [this.formatDate(today), Validators.required]
+    });
+  }
+
+  loadCashRegisterReport(): void {
+    if (this.reportForm.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    const { startDate, endDate } = this.reportForm.value;
+
+    this.reportService.getCashRegisterReport(startDate, endDate).subscribe({
+      next: (report) => {
+        this.cashRegisterReport = report;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading cash register report:', error);
+        this.dialogService.error('Error al cargar la caja diaria: ' + (error.message || 'Error desconocido'));
+        this.isLoading = false;
+      }
     });
   }
 
@@ -62,6 +86,18 @@ export class ReportsComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadActiveReport(): void {
+    if (this.activeTab === 'sales') {
+      this.loadSalesReport();
+    } else if (this.activeTab === 'cash') {
+      this.loadCashRegisterReport();
+    } else if (this.activeTab === 'gst') {
+      this.loadGstReport();
+    } else {
+      this.loadStockReport();
+    }
   }
 
   loadGstReport(): void {
@@ -100,10 +136,12 @@ export class ReportsComponent implements OnInit {
     });
   }
 
-  onTabChange(tab: 'sales' | 'gst' | 'stock'): void {
+  onTabChange(tab: ReportTab): void {
     this.activeTab = tab;
     if (tab === 'sales') {
       this.loadSalesReport();
+    } else if (tab === 'cash') {
+      this.loadCashRegisterReport();
     } else if (tab === 'gst') {
       this.loadGstReport();
     } else if (tab === 'stock') {
@@ -113,6 +151,10 @@ export class ReportsComponent implements OnInit {
 
   trackByDate(index: number, daily: any): any {
     return daily.date || index;
+  }
+
+  trackByCashierId(index: number, item: any): any {
+    return item.cashierId || index;
   }
 
   trackByHsn(index: number, item: any): any {

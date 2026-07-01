@@ -2,7 +2,7 @@ services:
   - type: web
     name: medical-store-pos-backend
     env: java
-    buildCommand: ./mvnw clean package -DskipTests
+    buildCommand: mvn clean package -DskipTests
     startCommand: java -jar target/pos-backend-*.jar
     envVars:
       - key: DATABASE_URL
@@ -13,6 +13,8 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+      - key: MEDIZANO_DEFAULT_PASSWORD
+        sync: false
       - key: PORT
         value: 8080
       - key: SPRING_PROFILES_ACTIVE
@@ -21,6 +23,4 @@ services:
         value: update
       - key: SHOW_SQL
         value: false
-
-
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { SalesReportResponse, GstReportResponse, StockReportResponse } from '../models/report.model';
+import { CashRegisterReportResponse, SalesReportResponse, GstReportResponse, StockReportResponse } from '../models/report.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +21,12 @@ export class ReportService {
     );
   }
 
+  getCashRegisterReport(startDate: string, endDate: string): Observable<CashRegisterReportResponse> {
+    return this.apiService.get<CashRegisterReportResponse>(
+      `/admin/reports/cash-register?startDate=${startDate}&endDate=${endDate}`
+    );
+  }
+
   getCashierSalesReport(cashierId: number, startDate: string, endDate: string): Observable<SalesReportResponse> {
     return this.apiService.get<SalesReportResponse>(
       `/admin/reports/cashier/${cashierId}?startDate=${startDate}&endDate=${endDate}`
@@ -31,4 +37,3 @@ export class ReportService {
     return this.apiService.get<StockReportResponse>('/admin/reports/stock');
   }
 }
-

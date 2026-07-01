@@ -16,6 +16,29 @@ export interface DailySales {
   totalAmount: number;
 }
 
+export interface CashRegisterReportResponse {
+  startDate: string;
+  endDate: string;
+  totalBills: number;
+  totalPayments: number;
+  subtotal: number;
+  totalGst: number;
+  totalSales: number;
+  totalCash: number;
+  totalUpi: number;
+  totalCard: number;
+  totalCollected: number;
+  roundingAdjustment: number;
+  cashierBreakdown: CashierBreakdown[];
+}
+
+export interface CashierBreakdown {
+  cashierId: number;
+  cashierName: string;
+  billCount: number;
+  totalAmount: number;
+}
+
 export interface GstReportResponse {
   startDate: string;
   endDate: string;
@@ -84,4 +107,3 @@ export interface LowStockItem {
   lowStockThreshold: number;
   averageSellingPrice: number;
 }
-

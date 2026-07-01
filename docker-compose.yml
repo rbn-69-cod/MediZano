@@ -22,4 +22,5 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/medical_store_pos
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      MEDIZANO_DEFAULT_PASSWORD: ${MEDIZANO_DEFAULT_PASSWORD:-}
       TZ: America/Lima

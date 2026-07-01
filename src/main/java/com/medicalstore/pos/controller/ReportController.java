@@ -1,5 +1,6 @@
 package com.medicalstore.pos.controller;
 
+import com.medicalstore.pos.dto.response.CashRegisterReportResponse;
 import com.medicalstore.pos.dto.response.GstReportResponse;
 import com.medicalstore.pos.dto.response.SalesReportResponse;
 import com.medicalstore.pos.dto.response.StockReportResponse;
@@ -33,6 +34,15 @@ public class ReportController {
         SalesReportResponse response = reportingService.getDailySalesReport(startDate, endDate);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/cash-register")
+    @Operation(summary = "Get cash register report", description = "Get daily register totals by payment method")
+    public ResponseEntity<CashRegisterReportResponse> getCashRegisterReport(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        CashRegisterReportResponse response = reportingService.getCashRegisterReport(startDate, endDate);
+        return ResponseEntity.ok(response);
+    }
     
     @GetMapping("/gst")
     @Operation(summary = "Get GST report", description = "Get GST report with CGST/SGST breakup")
@@ -60,4 +70,3 @@ public class ReportController {
         return ResponseEntity.ok(response);
     }
 }
-
