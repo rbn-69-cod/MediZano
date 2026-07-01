@@ -446,8 +446,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   get totalAmount(): number {
-    const itemTotal = this.items.reduce((sum, item) => sum + (item.total || this.calculateRoundedItemTotal(item)), 0);
-    return this.roundMoney(itemTotal);
+    return this.roundUpToCashIncrement(this.subtotal + this.totalGst);
   }
 
   get roundingAdjustment(): number {
@@ -710,11 +709,11 @@ export class BillingComponent implements OnInit, OnDestroy {
   private calculateItemTotal(item: BillItem): void {
     if (!item.unitPrice) return;
 
-    item.total = this.calculateRoundedItemTotal(item);
+    item.total = this.calculateItemAmount(item);
     this.recalculatePaymentAmounts();
   }
 
-  private calculateRoundedItemTotal(item: BillItem): number {
+  private calculateItemAmount(item: BillItem): number {
     if (!item.unitPrice) {
       return 0;
     }
@@ -723,7 +722,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     const gstPercentage = item.medicine?.gstPercentage || 0;
     const gstAmount = gstPercentage > 0 ? (itemSubtotal * gstPercentage) / 100 : 0;
 
-    return this.roundUpToCashIncrement(itemSubtotal + gstAmount);
+    return this.roundCents(itemSubtotal + gstAmount);
   }
 
   private roundUpToCashIncrement(amount: number): number {

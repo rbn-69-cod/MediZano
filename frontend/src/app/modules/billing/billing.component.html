@@ -153,7 +153,7 @@
               <div class="item-price">
                 <span class="price-label">Precio:</span>
                 <span class="price-value" *ngIf="item.total && item.total > 0">
-                  S/ {{ item.total | number:'1.1-1' }}
+                  S/ {{ item.total | number:'1.2-2' }}
                 </span>
                 <span class="price-value price-pending" *ngIf="!item.total || item.total === 0">
                   Calculando
@@ -238,7 +238,7 @@
                     </select>
                     <div class="payment-applied">
                       <span class="balance-label">Se cobrará</span>
-                      <span class="balance-value">S/ {{ getPaymentAmount(i) | number:'1.1-1' }}</span>
+                      <span class="balance-value">S/ {{ getPaymentAmount(i) | number:'1.2-2' }}</span>
                     </div>
                     <button
                       type="button"
@@ -265,7 +265,7 @@
                     </button>
                     <div class="balance-display">
                       <span class="balance-label">Vuelto:</span>
-                      <span class="balance-value">S/ {{ getCashChange(i) | number:'1.1-1' }}</span>
+                      <span class="balance-value">S/ {{ getCashChange(i) | number:'1.2-2' }}</span>
                     </div>
                   </div>
                 </div>
@@ -280,27 +280,27 @@
               <div class="totals-list">
                 <div class="total-row">
                   <span class="total-label">Subtotal</span>
-                  <span class="total-value">S/ {{ subtotal | number:'1.1-1' }}</span>
+                  <span class="total-value">S/ {{ subtotal | number:'1.2-2' }}</span>
                 </div>
                 <div class="total-row">
                   <span class="total-label">IGV</span>
-                  <span class="total-value">S/ {{ totalGst | number:'1.1-1' }}</span>
+                  <span class="total-value">S/ {{ totalGst | number:'1.2-2' }}</span>
                 </div>
                 <div class="total-row" *ngIf="roundingAdjustment > 0">
                   <span class="total-label">Redondeo</span>
-                  <span class="total-value">S/ {{ roundingAdjustment | number:'1.1-1' }}</span>
+                  <span class="total-value">S/ {{ roundingAdjustment | number:'1.2-2' }}</span>
                 </div>
                 <div class="total-row total-row-highlight">
                   <span class="total-label">Monto a pagar</span>
-                  <span class="total-value total-value-highlight">S/ {{ totalAmount | number:'1.1-1' }}</span>
+                  <span class="total-value total-value-highlight">S/ {{ totalAmount | number:'1.2-2' }}</span>
                 </div>
                 <div class="total-row">
                   <span class="total-label">Pagado</span>
-                  <span class="total-value">S/ {{ totalPaid | number:'1.1-1' }}</span>
+                  <span class="total-value">S/ {{ totalPaid | number:'1.2-2' }}</span>
                 </div>
                 <div class="total-row total-row-final">
                   <span class="total-label">Pendiente</span>
-                  <span class="total-value total-value-final">S/ {{ amountDue | number:'1.1-1' }}</span>
+                  <span class="total-value total-value-final">S/ {{ amountDue | number:'1.2-2' }}</span>
                 </div>
               </div>
               <button

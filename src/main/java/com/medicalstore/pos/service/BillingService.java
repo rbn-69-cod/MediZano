@@ -105,7 +105,7 @@ public class BillingService {
             BigDecimal itemSubtotal = unitPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             BigDecimal gstAmount = itemSubtotal.multiply(medicine.getGstPercentage())
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-            BigDecimal itemTotal = roundUpToCashIncrement(itemSubtotal.add(gstAmount));
+            BigDecimal itemTotal = itemSubtotal.add(gstAmount).setScale(2, RoundingMode.HALF_UP);
             
             // Create bill item
             BillItem billItem = BillItem.builder()
@@ -126,12 +126,9 @@ public class BillingService {
         }
         
         bill.setBillItems(billItems);
-        bill.setSubtotal(subtotal);
-        bill.setTotalGst(totalGst);
-        bill.setTotalAmount(billItems.stream()
-                .map(BillItem::getTotalAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add)
-                .setScale(2, RoundingMode.HALF_UP));
+        bill.setSubtotal(subtotal.setScale(2, RoundingMode.HALF_UP));
+        bill.setTotalGst(totalGst.setScale(2, RoundingMode.HALF_UP));
+        bill.setTotalAmount(roundUpToCashIncrement(bill.getSubtotal().add(bill.getTotalGst())));
         
         // Process payments
         BigDecimal totalPaid = BigDecimal.ZERO;

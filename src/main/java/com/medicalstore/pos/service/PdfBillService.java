@@ -197,7 +197,7 @@ public class PdfBillService {
     }
     
     private String formatCurrency(BigDecimal amount) {
-        return "S/ " + String.format("%.1f", amount);
+        return "S/ " + String.format("%.2f", amount);
     }
 
     private String formatPaymentMode(String mode) {
