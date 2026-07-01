@@ -34,7 +34,7 @@ export class InventoryService {
 
   findMedicineByBarcode(barcode: string): Observable<Medicine> {
     if (!barcode || barcode.trim().length === 0) {
-      return throwError(() => new Error('Barcode is required'));
+      return throwError(() => new Error('Ingresa o escanea un código válido'));
     }
     return this.apiService.get<Medicine>(`/pharmacist/medicines/barcode/${encodeURIComponent(barcode.trim())}`)
       .pipe(
@@ -47,7 +47,7 @@ export class InventoryService {
 
   searchMedicinesByBarcode(prefix: string): Observable<Medicine[]> {
     if (!prefix || prefix.trim().length === 0) {
-      return throwError(() => new Error('Barcode prefix is required'));
+      return throwError(() => new Error('Ingresa al menos un caracter del código'));
     }
     return this.apiService.get<Medicine[]>(`/pharmacist/medicines/barcode/search?prefix=${encodeURIComponent(prefix.trim())}`)
       .pipe(
@@ -85,7 +85,7 @@ export class InventoryService {
 
   getBatchByBarcode(barcode: string): Observable<Batch> {
     if (!barcode || barcode.trim().length === 0) {
-      return throwError(() => new Error('Barcode is required'));
+      return throwError(() => new Error('Ingresa o escanea un código válido'));
     }
     return this.apiService.get<Batch>(`/pharmacist/batches/barcode/${encodeURIComponent(barcode.trim())}`)
       .pipe(

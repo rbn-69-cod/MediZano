@@ -186,16 +186,7 @@ export class BillingComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // Use the first available camera (usually the default)
-      const selectedDeviceId = videoInputDevices[0].deviceId;
-
-      // Get user media stream
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
-          facingMode: 'environment' // Prefer back camera on mobile
-        }
-      });
+      const selectedDeviceId = this.getPreferredCameraDeviceId(videoInputDevices);
 
       // Set the stream to the video element (we know it exists from the check above)
       if (!videoElement) {
@@ -207,27 +198,14 @@ export class BillingComponent implements OnInit, OnDestroy {
       // Store reference to avoid null checks in callbacks
       const video = videoElement;
       
-      video.srcObject = this.stream;
       video.setAttribute('playsinline', 'true');
       video.setAttribute('autoplay', 'true');
       video.setAttribute('muted', 'true');
 
-      // Wait for video to be ready
-      await new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-          video.play().then(() => {
-            resolve(true);
-          }).catch((err) => {
-            console.error('Error playing video:', err);
-            resolve(false);
-          });
-        };
-      });
-
       // Start scanning
-      this.codeReader.decodeFromVideoDevice(
+      await this.codeReader.decodeFromVideoDevice(
         selectedDeviceId,
-        'video-scanner',
+        video,
         (result, error) => {
           if (result) {
             const barcode = result.getText();
@@ -241,6 +219,7 @@ export class BillingComponent implements OnInit, OnDestroy {
           }
         }
       );
+      this.stream = video.srcObject as MediaStream | null;
     } catch (error: any) {
       console.error('Error al iniciar cámara:', error);
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
@@ -277,22 +256,30 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   handleScannedBarcode(barcode: string): void {
-    if (!barcode || !barcode.trim()) {
+    const scannedCode = this.extractBarcodeFromScan(barcode);
+    if (!scannedCode) {
       return;
     }
 
     // Update the search input
-    this.searchBarcode = barcode.trim();
+    this.searchBarcode = scannedCode;
     
     // Process the barcode
-    this.processBarcode(barcode.trim());
+    this.processBarcode(scannedCode);
   }
 
   processBarcode(barcode: string): void {
     this.isLoading = true;
-    this.inventoryService.findMedicineByBarcode(barcode).subscribe({
+    const normalizedBarcode = this.extractBarcodeFromScan(barcode);
+    if (!normalizedBarcode) {
+      this.dialogService.warning('Ingresa o escanea un código válido.');
+      this.isLoading = false;
+      return;
+    }
+
+    this.inventoryService.findMedicineByBarcode(normalizedBarcode).subscribe({
       next: (medicine) => {
-        this.addItemByMedicine(medicine, 1, barcode);
+        this.addItemByMedicine(medicine, 1, normalizedBarcode);
         this.searchBarcode = '';
         this.isLoading = false;
         this.dialogService.success(`Escaneado: ${medicine.name}`);
@@ -302,6 +289,49 @@ export class BillingComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
+
+  private getPreferredCameraDeviceId(devices: MediaDeviceInfo[]): string | null {
+    const backCameraKeywords = ['back', 'rear', 'environment', 'trasera', 'posterior'];
+    const preferredDevice = devices.find((device) => {
+      const label = device.label.toLowerCase();
+      return backCameraKeywords.some((keyword) => label.includes(keyword));
+    });
+
+    return preferredDevice?.deviceId || devices[devices.length - 1]?.deviceId || null;
+  }
+
+  private extractBarcodeFromScan(value: string): string {
+    const scannedValue = (value || '').trim();
+    if (!scannedValue) {
+      return '';
+    }
+
+    const urlBarcode = this.extractBarcodeFromUrl(scannedValue);
+    if (urlBarcode) {
+      return urlBarcode;
+    }
+
+    const keyValueMatch = scannedValue.match(/(?:barcode|barCode|code|qr|gtin|ean|upc)\s*[:=]\s*([A-Za-z0-9._-]+)/i);
+    return (keyValueMatch?.[1] || scannedValue).trim();
+  }
+
+  private extractBarcodeFromUrl(value: string): string {
+    try {
+      const url = new URL(value);
+      const barcodeParams = ['barcode', 'barCode', 'code', 'qr', 'gtin', 'ean', 'upc'];
+      for (const param of barcodeParams) {
+        const paramValue = url.searchParams.get(param);
+        if (paramValue?.trim()) {
+          return paramValue.trim();
+        }
+      }
+
+      const lastPathSegment = url.pathname.split('/').filter(Boolean).pop();
+      return lastPathSegment?.trim() || '';
+    } catch {
+      return '';
+    }
   }
 
   get paymentsFormArray(): FormArray {

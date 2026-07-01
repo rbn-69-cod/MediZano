@@ -54,7 +54,16 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.getToken() && !!this.getCurrentUser();
+    const token = this.getToken();
+    const user = this.getCurrentUser();
+
+    if (!token || !user || !this.isStoredSessionValid(token, user)) {
+      this.clearStoredSession();
+      this.currentUserSubject.next(null);
+      return false;
+    }
+
+    return true;
   }
 
   getCurrentUser(): User | null {
@@ -82,8 +91,61 @@ export class AuthService {
 
   private getStoredUser(): User | null {
     const userData = localStorage.getItem(this.USER_KEY);
-    return userData ? JSON.parse(userData) : null;
+    const token = this.getToken();
+
+    if (!userData || !token) {
+      this.clearStoredSession();
+      return null;
+    }
+
+    try {
+      const user = JSON.parse(userData) as User;
+      if (!this.isStoredSessionValid(token, user)) {
+        this.clearStoredSession();
+        return null;
+      }
+
+      return user;
+    } catch {
+      this.clearStoredSession();
+      return null;
+    }
+  }
+
+  private isStoredSessionValid(token: string, user: User): boolean {
+    const payload = this.decodeJwtPayload(token);
+    if (!payload) {
+      return false;
+    }
+
+    const tokenUsername = typeof payload.sub === 'string' ? payload.sub : '';
+    const expiresAt = typeof payload.exp === 'number' ? payload.exp * 1000 : 0;
+
+    return tokenUsername === user.username && expiresAt > Date.now();
+  }
+
+  private decodeJwtPayload(token: string): any | null {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) {
+        return null;
+      }
+
+      const normalizedPayload = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const paddedPayload = normalizedPayload.padEnd(
+        normalizedPayload.length + ((4 - normalizedPayload.length % 4) % 4),
+        '='
+      );
+
+      return JSON.parse(atob(paddedPayload));
+    } catch {
+      return null;
+    }
+  }
+
+  private clearStoredSession(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
   }
 }
-
 
