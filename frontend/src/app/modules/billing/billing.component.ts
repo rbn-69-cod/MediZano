@@ -6,7 +6,7 @@ import { DialogService } from '../../core/services/dialog.service';
 import { Medicine } from '../../core/models/medicine.model';
 import { BillItemRequest, CreateBillRequest, BillResponse, PaymentMode, PaymentRequest } from '../../core/models/billing.model';
 import { BrowserMultiFormatReader, NotFoundException, BarcodeFormat, DecodeHintType } from '@zxing/library';
-import { Subject, Subscription, of } from 'rxjs';
+import { Observable, Subject, Subscription, of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 interface BillItem {
@@ -43,6 +43,9 @@ export class BillingComponent implements OnInit, OnDestroy {
   hasCamera = false;
   private codeReader: BrowserMultiFormatReader | null = null;
   private stream: MediaStream | null = null;
+  private lastScannedBarcode = '';
+  private lastScannedAt = 0;
+  private stableScanCount = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -209,8 +212,10 @@ export class BillingComponent implements OnInit, OnDestroy {
         (result, error) => {
           if (result) {
             const barcode = result.getText();
-            this.handleScannedBarcode(barcode);
-            this.stopScanning();
+            if (this.isStableScan(barcode)) {
+              this.handleScannedBarcode(barcode);
+              this.stopScanning();
+            }
           }
           
           if (error && !(error instanceof NotFoundException)) {
@@ -253,6 +258,9 @@ export class BillingComponent implements OnInit, OnDestroy {
     }
     
     this.isScanning = false;
+    this.lastScannedBarcode = '';
+    this.lastScannedAt = 0;
+    this.stableScanCount = 0;
   }
 
   handleScannedBarcode(barcode: string): void {
@@ -277,17 +285,61 @@ export class BillingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.inventoryService.findMedicineByBarcode(normalizedBarcode).subscribe({
-      next: (medicine) => {
-        this.addItemByMedicine(medicine, 1, normalizedBarcode);
+    this.findMedicineByBarcodeCandidates(normalizedBarcode).subscribe({
+      next: ({ medicine, barcode: matchedBarcode }) => {
+        this.addItemByMedicine(medicine, 1, matchedBarcode);
         this.searchBarcode = '';
         this.isLoading = false;
         this.dialogService.success(`Escaneado: ${medicine.name}`);
       },
       error: (error: any) => {
-        this.dialogService.error(error.message || 'No se encontró un medicamento con este código');
+        const candidates = this.getBarcodeCandidates(normalizedBarcode);
+        const suffix = candidates.length > 1 ? ` Codigos probados: ${candidates.join(', ')}` : '';
+        this.dialogService.error((error.message || 'No se encontro un medicamento con este codigo') + suffix);
         this.isLoading = false;
       }
+    });
+  }
+
+  private isStableScan(value: string): boolean {
+    const barcode = this.extractBarcodeFromScan(value);
+    const now = Date.now();
+
+    if (!barcode) {
+      return false;
+    }
+
+    if (barcode === this.lastScannedBarcode && now - this.lastScannedAt < 1500) {
+      this.stableScanCount++;
+    } else {
+      this.lastScannedBarcode = barcode;
+      this.stableScanCount = 1;
+    }
+
+    this.lastScannedAt = now;
+    return this.stableScanCount >= 2;
+  }
+
+  private findMedicineByBarcodeCandidates(barcode: string, index = 0): Observable<{ medicine: Medicine; barcode: string }> {
+    const candidates = this.getBarcodeCandidates(barcode);
+    const candidate = candidates[index];
+
+    if (!candidate) {
+      return throwError(() => new Error('No se encontro un producto con este codigo.'));
+    }
+
+    return new Observable((observer) => {
+      const subscription = this.inventoryService.findMedicineByBarcode(candidate).subscribe({
+        next: (medicine) => {
+          observer.next({ medicine, barcode: candidate });
+          observer.complete();
+        },
+        error: () => {
+          this.findMedicineByBarcodeCandidates(barcode, index + 1).subscribe(observer);
+        }
+      });
+
+      return () => subscription.unsubscribe();
     });
   }
 
@@ -309,11 +361,40 @@ export class BillingComponent implements OnInit, OnDestroy {
 
     const urlBarcode = this.extractBarcodeFromUrl(scannedValue);
     if (urlBarcode) {
-      return urlBarcode;
+      return this.normalizeBarcodeValue(urlBarcode);
     }
 
     const keyValueMatch = scannedValue.match(/(?:barcode|barCode|code|qr|gtin|ean|upc)\s*[:=]\s*([A-Za-z0-9._-]+)/i);
-    return (keyValueMatch?.[1] || scannedValue).trim();
+    const extractedValue = (keyValueMatch?.[1] || scannedValue).trim();
+    return this.normalizeBarcodeValue(extractedValue);
+  }
+
+  private normalizeBarcodeValue(value: string): string {
+    const trimmedValue = value.trim();
+    const alphanumeric = trimmedValue.replace(/[^A-Za-z0-9]/g, '');
+
+    if (/^\d+$/.test(alphanumeric)) {
+      return alphanumeric;
+    }
+
+    return trimmedValue;
+  }
+
+  private getBarcodeCandidates(barcode: string): string[] {
+    const normalizedBarcode = this.normalizeBarcodeValue(barcode);
+    const candidates = new Set<string>([normalizedBarcode]);
+
+    if (/^\d+$/.test(normalizedBarcode)) {
+      if (normalizedBarcode.length === 12) {
+        candidates.add(`0${normalizedBarcode}`);
+      }
+
+      if (normalizedBarcode.length === 13 && normalizedBarcode.startsWith('0')) {
+        candidates.add(normalizedBarcode.slice(1));
+      }
+    }
+
+    return Array.from(candidates).filter(Boolean);
   }
 
   private extractBarcodeFromUrl(value: string): string {
@@ -691,7 +772,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       }
       return {
         medicineId: item.medicineId || undefined,
-        barcode: item.barcode || undefined,
+        barcode: item.medicineId ? undefined : item.barcode || undefined,
         quantity: item.quantity || 1 // Ensure quantity is at least 1
       };
     });
