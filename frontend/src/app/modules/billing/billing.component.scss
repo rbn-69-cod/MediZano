@@ -1521,7 +1521,14 @@
   grid-template-columns: 1fr 1fr;
   gap: $space-3;
   width: 100%;
-  margin-top: $space-3;
+  margin-top: $space-2;
+}
+
+.customer-section {
+  padding: $space-2;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.38);
+  border: 1px solid var(--border-subtle);
 }
 
 .form-group-small {
@@ -1562,16 +1569,46 @@
   line-height: 1.2;
 }
 
+.card-subtitle {
+  margin: $space-1 0 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--text-secondary);
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: $space-1;
   gap: $space-2;
   padding: 0;
   padding-bottom: 0;
   background: transparent;
   border-bottom: none;
+}
+
+.card-header-stacked {
+  align-items: center;
+}
+
+.quick-sale-badge {
+  flex-shrink: 0;
+  padding: $space-1 $space-2;
+  border-radius: 16px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid rgba(34, 197, 94, 0.24);
+  color: $color-success;
+  font-size: 11px;
+  font-weight: $font-weight-semibold;
+  white-space: nowrap;
+}
+
+.payment-header-actions {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+  flex-shrink: 0;
 }
 
 .summary-header {
@@ -1866,12 +1903,13 @@
 }
 
 .btn-add-payment {
-  padding: $space-2 $space-4;
+  height: 30px;
+  padding: 0 $space-3;
   background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
   color: white;
   border: none;
   border-radius: 18px;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   cursor: pointer;
   white-space: nowrap;
@@ -1900,6 +1938,34 @@
 
   &:disabled {
     opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-complete-payment {
+  height: 30px;
+  padding: 0 $space-3;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  border-radius: 18px;
+  background: rgba(34, 197, 94, 0.12);
+  color: $color-success;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 180ms ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(34, 197, 94, 0.18);
+    border-color: rgba(34, 197, 94, 0.42);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.45;
     cursor: not-allowed;
   }
 }
@@ -2180,6 +2246,42 @@
   .search-fields-row {
     grid-template-columns: 1fr;
     gap: $space-4;
+  }
+
+  .customer-fields-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-header-stacked {
+    align-items: stretch;
+  }
+
+  .quick-sale-badge {
+    width: fit-content;
+  }
+
+  .payment-header-actions {
+    width: 100%;
+  }
+
+  .btn-complete-payment,
+  .btn-add-payment {
+    flex: 1;
+  }
+
+  .payment-item,
+  .cash-fields {
+    flex-wrap: wrap;
+  }
+
+  .payment-applied,
+  .balance-display {
+    flex: 1 1 100%;
   }
 }
 

@@ -26,6 +26,7 @@ interface BillItem {
 export class BillingComponent implements OnInit, OnDestroy {
   // Expose PaymentMode enum to template
   PaymentMode = PaymentMode;
+  private readonly defaultCustomerName = 'Cliente general';
   
   billForm: FormGroup;
   items: BillItem[] = [];
@@ -46,6 +47,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   private lastScannedBarcode = '';
   private lastScannedAt = 0;
   private stableScanCount = 0;
+  private paymentEditedManually = false;
 
   constructor(
     private fb: FormBuilder,
@@ -485,13 +487,15 @@ export class BillingComponent implements OnInit, OnDestroy {
   onPaymentModeChange(index: number): void {
     const payment = this.paymentsFormArray.at(index);
     const mode = payment.get('mode')?.value;
+    this.paymentEditedManually = false;
     if (mode === PaymentMode.CASH) {
       payment.get('cashProvided')?.setValue(0);
     }
-    this.recalculatePaymentAmounts();
+    this.syncQuickPayment();
   }
 
   onPaymentValueChange(): void {
+    this.paymentEditedManually = true;
     this.recalculatePaymentAmounts();
   }
 
@@ -500,7 +504,12 @@ export class BillingComponent implements OnInit, OnDestroy {
     const payment = this.paymentsFormArray.at(index);
     const amount = Number(payment.get('amount')?.value || 0);
     payment.get('cashProvided')?.setValue(this.roundMoney(amount));
+    this.paymentEditedManually = false;
     this.recalculatePaymentAmounts();
+  }
+
+  completePayment(): void {
+    this.applyQuickSaleDefaults(true);
   }
 
   getPaymentAmount(index: number): number {
@@ -531,13 +540,56 @@ export class BillingComponent implements OnInit, OnDestroy {
     });
   }
 
+  private syncQuickPayment(): void {
+    if (this.paymentEditedManually || this.paymentsFormArray.length !== 1 || this.totalAmount <= 0) {
+      this.recalculatePaymentAmounts();
+      return;
+    }
+
+    this.applyQuickSaleDefaults(false);
+  }
+
+  private applyQuickSaleDefaults(showMessage: boolean): void {
+    this.ensureDefaultCustomerData();
+
+    if (this.paymentsFormArray.length !== 1 || this.totalAmount <= 0) {
+      this.recalculatePaymentAmounts();
+      return;
+    }
+
+    const payment = this.paymentsFormArray.at(0);
+    const total = this.roundMoney(this.totalAmount);
+
+    payment.get('amount')?.setValue(total, { emitEvent: false });
+    if (payment.get('mode')?.value === PaymentMode.CASH) {
+      payment.get('cashProvided')?.setValue(total, { emitEvent: false });
+    }
+
+    this.paymentEditedManually = false;
+    this.recalculatePaymentAmounts();
+
+    if (showMessage) {
+      this.dialogService.success('Pago completo listo.');
+    }
+  }
+
+  private ensureDefaultCustomerData(): void {
+    const customerNameControl = this.billForm.get('customerName');
+    const customerName = customerNameControl?.value?.trim();
+
+    if (!customerName) {
+      customerNameControl?.setValue(this.defaultCustomerName, { emitEvent: false });
+    }
+  }
+
   resetBill(): void {
     this.items = [];
     this.currentBill = null;
     this.searchBarcode = '';
     this.searchMedicine = '';
+    this.paymentEditedManually = false;
     this.billForm.reset({
-      customerName: '',
+      customerName: this.defaultCustomerName,
       customerPhone: '',
       payments: [
         { mode: PaymentMode.CASH, amount: 0, cashProvided: 0 }
@@ -548,6 +600,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   addPayment(): void {
+    this.paymentEditedManually = false;
     const paymentForm = this.fb.group({
       mode: [PaymentMode.CASH, Validators.required],
       amount: [0, [Validators.required, Validators.min(0.01)]],
@@ -559,8 +612,9 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   removePayment(index: number): void {
     if (this.paymentsFormArray.length > 1) {
+      this.paymentEditedManually = false;
       this.paymentsFormArray.removeAt(index);
-      this.recalculatePaymentAmounts();
+      this.syncQuickPayment();
     }
   }
 
@@ -639,6 +693,7 @@ export class BillingComponent implements OnInit, OnDestroy {
       // Fetch price from available batches
       this.fetchItemPrice(item);
     }
+    this.syncQuickPayment();
   }
 
   fetchItemPrice(item: BillItem): void {
@@ -672,6 +727,7 @@ export class BillingComponent implements OnInit, OnDestroy {
         if (availableBatch && availableBatch.sellingPrice) {
           item.unitPrice = availableBatch.sellingPrice;
           this.updateItemTotal(item);
+          this.syncQuickPayment();
         }
       },
       error: (error) => {
@@ -710,7 +766,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     if (!item.unitPrice) return;
 
     item.total = this.calculateItemAmount(item);
-    this.recalculatePaymentAmounts();
+    this.syncQuickPayment();
   }
 
   private calculateItemAmount(item: BillItem): number {
@@ -747,13 +803,13 @@ export class BillingComponent implements OnInit, OnDestroy {
       this.updateItemTotal(this.items[index]);
       // Force change detection for GST recalculation
       this.items = [...this.items];
-      this.recalculatePaymentAmounts();
+      this.syncQuickPayment();
     }
   }
 
   removeItem(index: number): void {
     this.items.splice(index, 1);
-    this.recalculatePaymentAmounts();
+    this.syncQuickPayment();
   }
 
   createBill(): void {
@@ -770,7 +826,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    this.recalculatePaymentAmounts();
+    this.applyQuickSaleDefaults(false);
 
     // Map items to bill items (exclude internal fields)
     const billItems: BillItemRequest[] = this.items.map(item => {

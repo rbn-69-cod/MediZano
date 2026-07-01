@@ -185,16 +185,22 @@
         <form [formGroup]="billForm">
           <div class="summary-card">
             <!-- Customer Info -->
-            <div class="summary-section">
-              <h3 class="card-title">Datos del cliente</h3>
+            <div class="summary-section customer-section">
+              <div class="card-header card-header-stacked">
+                <div>
+                  <h3 class="card-title">Datos del cliente</h3>
+                  <p class="card-subtitle">Venta rápida lista para cobrar</p>
+                </div>
+                <span class="quick-sale-badge">Cliente general</span>
+              </div>
               <div class="customer-fields-row">
                 <div class="form-group form-group-small">
-                  <label class="form-label">Nombre (opcional)</label>
+                  <label class="form-label">Nombre</label>
                   <input
                     type="text"
                     class="form-input form-input-small"
                     formControlName="customerName"
-                    placeholder="Nombre del cliente"
+                    placeholder="Cliente general"
                   />
                 </div>
                 <div class="form-group form-group-small">
@@ -215,14 +221,27 @@
             <!-- Payments -->
             <div class="summary-section">
               <div class="card-header">
-                <h3 class="card-title">Pagos</h3>
-                <button
-                  type="button"
-                  class="btn-add-payment"
-                  (click)="addPayment()"
-                >
-                  + Agregar
-                </button>
+                <div>
+                  <h3 class="card-title">Pagos</h3>
+                  <p class="card-subtitle">Completa el monto automáticamente</p>
+                </div>
+                <div class="payment-header-actions">
+                  <button
+                    type="button"
+                    class="btn-complete-payment"
+                    (click)="completePayment()"
+                    [disabled]="items.length === 0 || totalAmount <= 0 || paymentsFormArray.length !== 1"
+                  >
+                    Pago completo
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-add-payment"
+                    (click)="addPayment()"
+                  >
+                    + Agregar
+                  </button>
+                </div>
               </div>
               <div formArrayName="payments">
                 <div
