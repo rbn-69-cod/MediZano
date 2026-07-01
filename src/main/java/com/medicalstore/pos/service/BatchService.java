@@ -15,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BatchService {
+    private static final BigDecimal CASH_ROUNDING_INCREMENT = new BigDecimal("0.10");
     
     private final BatchRepository batchRepository;
     private final StockBarcodeRepository stockBarcodeRepository;
@@ -50,8 +53,8 @@ public class BatchService {
                 .medicine(medicine)
                 .batchNumber(request.getBatchNumber())
                 .expiryDate(request.getExpiryDate())
-                .purchasePrice(request.getPurchasePrice())
-                .sellingPrice(request.getSellingPrice())
+                .purchasePrice(roundUpToCashIncrement(request.getPurchasePrice()))
+                .sellingPrice(roundUpToCashIncrement(request.getSellingPrice()))
                 .quantityAvailable(request.getQuantityAvailable())
                 .build();
         
@@ -203,8 +206,8 @@ public class BatchService {
         
         batch.setBatchNumber(request.getBatchNumber());
         batch.setExpiryDate(request.getExpiryDate());
-        batch.setPurchasePrice(request.getPurchasePrice());
-        batch.setSellingPrice(request.getSellingPrice());
+        batch.setPurchasePrice(roundUpToCashIncrement(request.getPurchasePrice()));
+        batch.setSellingPrice(roundUpToCashIncrement(request.getSellingPrice()));
         batch.setQuantityAvailable(request.getQuantityAvailable());
         
         batch = batchRepository.save(batch);
@@ -250,6 +253,16 @@ public class BatchService {
         auditService.log(AuditLog.ActionType.BATCH_DELETED, user, "Batch", 
                         id.toString(), "Batch deleted: " + batch.getBatchNumber(),
                         batchInfo, null, httpRequest);
+    }
+
+    private BigDecimal roundUpToCashIncrement(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return amount.divide(CASH_ROUNDING_INCREMENT, 0, RoundingMode.CEILING)
+                .multiply(CASH_ROUNDING_INCREMENT)
+                .setScale(2, RoundingMode.HALF_UP);
     }
     
     BatchResponse mapToResponse(Batch batch) {

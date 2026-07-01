@@ -165,8 +165,8 @@ export class MedicinesComponent implements OnInit, OnDestroy {
         prescriptionRequired: formValue.prescriptionRequired,
         // Include stock and pricing if provided
         initialStock: formValue.initialStock && formValue.initialStock > 0 ? formValue.initialStock : undefined,
-        purchasePrice: formValue.purchasePrice && formValue.purchasePrice > 0 ? formValue.purchasePrice : undefined,
-        sellingPrice: formValue.sellingPrice && formValue.sellingPrice > 0 ? formValue.sellingPrice : undefined,
+        purchasePrice: formValue.purchasePrice && formValue.purchasePrice > 0 ? this.roundUpToCashIncrement(formValue.purchasePrice) : undefined,
+        sellingPrice: formValue.sellingPrice && formValue.sellingPrice > 0 ? this.roundUpToCashIncrement(formValue.sellingPrice) : undefined,
         batchNumber: formValue.batchNumber && formValue.batchNumber.trim() ? formValue.batchNumber : undefined,
         expiryDate: formValue.expiryDate || undefined
       };
@@ -327,8 +327,8 @@ export class MedicinesComponent implements OnInit, OnDestroy {
       medicineId: this.managingMedicine.id,
       batchNumber: formValue.batchNumber,
       expiryDate: formValue.expiryDate,
-      purchasePrice: formValue.purchasePrice,
-      sellingPrice: formValue.sellingPrice,
+      purchasePrice: this.roundUpToCashIncrement(formValue.purchasePrice),
+      sellingPrice: this.roundUpToCashIncrement(formValue.sellingPrice),
       quantityAvailable: formValue.quantityAvailable
     };
 
@@ -383,9 +383,17 @@ export class MedicinesComponent implements OnInit, OnDestroy {
     return diffDays <= 30 && !this.isExpired(expiryDate);
   }
 
+  private roundUpToCashIncrement(value: number): number {
+    const amount = Number(value || 0);
+    if (amount <= 0) {
+      return 0;
+    }
+
+    return Math.round((Math.ceil((amount - Number.EPSILON) * 10) / 10) * 10) / 10;
+  }
+
   isLowStock(quantity: number): boolean {
     return quantity > 0 && quantity <= 10;
   }
 
 }
-

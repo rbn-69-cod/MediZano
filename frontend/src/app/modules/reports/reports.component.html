@@ -107,7 +107,7 @@
           </div>
           <div class="card-content">
             <span class="card-label">Total ventas</span>
-            <span class="card-value">S/ {{ salesReport.totalSales | number:'1.2-2' }}</span>
+            <span class="card-value">S/ {{ salesReport.totalSales | number:'1.1-1' }}</span>
           </div>
         </div>
 
@@ -117,7 +117,7 @@
           </div>
           <div class="card-content">
             <span class="card-label">Total IGV</span>
-            <span class="card-value">S/ {{ salesReport.totalGst | number:'1.2-2' }}</span>
+            <span class="card-value">S/ {{ salesReport.totalGst | number:'1.1-1' }}</span>
           </div>
         </div>
 
@@ -127,7 +127,7 @@
           </div>
           <div class="card-content">
             <span class="card-label">Efectivo</span>
-            <span class="card-value">S/ {{ salesReport.totalCash | number:'1.2-2' }}</span>
+            <span class="card-value">S/ {{ salesReport.totalCash | number:'1.1-1' }}</span>
           </div>
         </div>
       </div>
@@ -153,7 +153,7 @@
                   <span class="bills-value">{{ daily.billCount }}</span>
                 </td>
                 <td class="cell-amount">
-                  <span class="amount-value">S/ {{ daily.totalAmount | number:'1.2-2' }}</span>
+                  <span class="amount-value">S/ {{ daily.totalAmount | number:'1.1-1' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -198,7 +198,7 @@
           </div>
           <div class="card-content">
             <span class="card-label">Total IGV</span>
-            <span class="card-value">S/ {{ gstReport.totalGst | number:'1.2-2' }}</span>
+            <span class="card-value">S/ {{ gstReport.totalGst | number:'1.1-1' }}</span>
           </div>
         </div>
       </div>
@@ -229,10 +229,10 @@
                   <span class="gst-value">{{ item.gstPercentage }}%</span>
                 </td>
                 <td class="cell-amount">
-                  <span class="amount-value">S/ {{ item.taxableAmount | number:'1.2-2' }}</span>
+                  <span class="amount-value">S/ {{ item.taxableAmount | number:'1.1-1' }}</span>
                 </td>
                 <td class="cell-total-gst">
-                  <span class="total-gst-value">S/ {{ item.totalGst | number:'1.2-2' }}</span>
+                  <span class="total-gst-value">S/ {{ item.totalGst | number:'1.1-1' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -347,7 +347,7 @@
           </div>
           <div class="card-content">
             <span class="card-label">Valor total de stock</span>
-            <span class="card-value">S/ {{ stockReport.totalStockValue | number:'1.2-2' }}</span>
+            <span class="card-value">S/ {{ stockReport.totalStockValue | number:'1.1-1' }}</span>
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@
                   <span class="threshold-value">{{ item.lowStockThreshold }}</span>
                 </td>
                 <td class="cell-price">
-                  <span class="price-value">S/ {{ item.averageSellingPrice | number:'1.2-2' }}</span>
+                  <span class="price-value">S/ {{ item.averageSellingPrice | number:'1.1-1' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -419,10 +419,10 @@
                   <span class="quantity-value">{{ item.quantity }}</span>
                 </td>
                 <td class="cell-price">
-                  <span class="price-value">S/ {{ item.purchasePrice | number:'1.2-2' }}</span>
+                  <span class="price-value">S/ {{ item.purchasePrice | number:'1.1-1' }}</span>
                 </td>
                 <td class="cell-value">
-                  <span class="value-amount">S/ {{ item.stockValue | number:'1.2-2' }}</span>
+                  <span class="value-amount">S/ {{ item.stockValue | number:'1.1-1' }}</span>
                 </td>
               </tr>
             </tbody>
@@ -486,7 +486,7 @@
                   </span>
                 </td>
                 <td class="cell-value">
-                  <span class="value-amount">S/ {{ item.stockValue | number:'1.2-2' }}</span>
+                  <span class="value-amount">S/ {{ item.stockValue | number:'1.1-1' }}</span>
                 </td>
               </tr>
             </tbody>

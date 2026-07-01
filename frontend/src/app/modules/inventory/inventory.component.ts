@@ -145,8 +145,8 @@ export class InventoryComponent implements OnInit {
     const request: UpdateBatchRequest = {
       batchNumber: formValue.batchNumber,
       expiryDate: formValue.expiryDate,
-      purchasePrice: formValue.purchasePrice,
-      sellingPrice: formValue.sellingPrice,
+      purchasePrice: this.roundUpToCashIncrement(formValue.purchasePrice),
+      sellingPrice: this.roundUpToCashIncrement(formValue.sellingPrice),
       quantityAvailable: formValue.quantityAvailable
     };
 
@@ -184,5 +184,14 @@ export class InventoryComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private roundUpToCashIncrement(value: number): number {
+    const amount = Number(value || 0);
+    if (amount <= 0) {
+      return 0;
+    }
+
+    return Math.round((Math.ceil((amount - Number.EPSILON) * 10) / 10) * 10) / 10;
   }
 }
