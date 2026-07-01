@@ -126,6 +126,15 @@ public class PdfBillService {
             summaryTable.addCell(createCell("IGV:", boldFont, 10, false));
             summaryTable.addCell(createCell(formatCurrency(bill.getTotalGst()), normalFont, 10, false)
                     .setTextAlignment(TextAlignment.RIGHT));
+
+            BigDecimal roundingAdjustment = bill.getTotalAmount()
+                    .subtract(bill.getSubtotal())
+                    .subtract(bill.getTotalGst());
+            if (roundingAdjustment.compareTo(BigDecimal.ZERO) > 0) {
+                summaryTable.addCell(createCell("Redondeo:", boldFont, 10, false));
+                summaryTable.addCell(createCell(formatCurrency(roundingAdjustment), normalFont, 10, false)
+                        .setTextAlignment(TextAlignment.RIGHT));
+            }
             
             summaryTable.addCell(createCell("TOTAL:", boldFont, 12, false));
             summaryTable.addCell(createCell(formatCurrency(bill.getTotalAmount()), boldFont, 12, false)
@@ -188,7 +197,7 @@ public class PdfBillService {
     }
     
     private String formatCurrency(BigDecimal amount) {
-        return "S/ " + String.format("%.2f", amount);
+        return "S/ " + String.format("%.1f", amount);
     }
 
     private String formatPaymentMode(String mode) {

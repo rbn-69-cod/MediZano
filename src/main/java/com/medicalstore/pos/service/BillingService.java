@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BillingService {
+    private static final BigDecimal CASH_ROUNDING_INCREMENT = new BigDecimal("0.10");
     
     private final BillRepository billRepository;
     private final PaymentRepository paymentRepository;
@@ -104,7 +105,7 @@ public class BillingService {
             BigDecimal itemSubtotal = unitPrice.multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             BigDecimal gstAmount = itemSubtotal.multiply(medicine.getGstPercentage())
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-            BigDecimal itemTotal = itemSubtotal.add(gstAmount);
+            BigDecimal itemTotal = roundUpToCashIncrement(itemSubtotal.add(gstAmount));
             
             // Create bill item
             BillItem billItem = BillItem.builder()
@@ -127,7 +128,10 @@ public class BillingService {
         bill.setBillItems(billItems);
         bill.setSubtotal(subtotal);
         bill.setTotalGst(totalGst);
-        bill.setTotalAmount(subtotal.add(totalGst));
+        bill.setTotalAmount(billItems.stream()
+                .map(BillItem::getTotalAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP));
         
         // Process payments
         BigDecimal totalPaid = BigDecimal.ZERO;
@@ -261,6 +265,16 @@ public class BillingService {
     private String generatePaymentReference(Payment.PaymentMode mode) {
         String prefix = mode.name().substring(0, 1);
         return prefix + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private BigDecimal roundUpToCashIncrement(BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        return amount.divide(CASH_ROUNDING_INCREMENT, 0, RoundingMode.CEILING)
+                .multiply(CASH_ROUNDING_INCREMENT)
+                .setScale(2, RoundingMode.HALF_UP);
     }
     
     private BillResponse mapToResponse(Bill bill) {

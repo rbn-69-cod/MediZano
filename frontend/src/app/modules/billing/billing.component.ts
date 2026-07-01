@@ -428,37 +428,30 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   get totalGst(): number {
-    // Calculate GST for each item based on medicine's GST percentage from database
     const total = this.items.reduce((sum, item) => {
-      // Ensure we have both medicine with gstPercentage and unitPrice
       if (!item.medicine || !item.medicine.gstPercentage || !item.unitPrice) {
-        // If medicine is missing but we have medicineId, try to get it (async, so skip for now)
-        // This will be handled by updateItemTotal when price is fetched
         return sum;
       }
-      
-      // Get GST percentage from medicine (from database)
+
+      const itemSubtotal = item.unitPrice * item.quantity;
       const gstPercentage = item.medicine.gstPercentage;
       if (gstPercentage <= 0 || gstPercentage > 100) {
-        // Invalid GST percentage, skip
         return sum;
       }
-      
-      // Calculate item subtotal (price × quantity)
-      const itemSubtotal = item.unitPrice * item.quantity;
-      
-      // Calculate GST amount: (subtotal × gstPercentage) / 100
-      const gstAmount = (itemSubtotal * gstPercentage) / 100;
-      
-      return sum + gstAmount;
+
+      return sum + (itemSubtotal * gstPercentage) / 100;
     }, 0);
-    
-    // Round to 2 decimal places to match backend precision
-    return Math.round(total * 100) / 100;
+
+    return this.roundCents(total);
   }
 
   get totalAmount(): number {
-    return this.subtotal + this.totalGst;
+    const itemTotal = this.items.reduce((sum, item) => sum + (item.total || this.calculateRoundedItemTotal(item)), 0);
+    return this.roundMoney(itemTotal);
+  }
+
+  get roundingAdjustment(): number {
+    return Math.max(0, this.roundCents(this.totalAmount - this.subtotal - this.totalGst));
   }
 
   get totalPaid(): number {
@@ -469,7 +462,7 @@ export class BillingComponent implements OnInit, OnDestroy {
   }
 
   get amountDue(): number {
-    return Math.max(0, Math.round((this.totalAmount - this.totalPaid) * 100) / 100);
+    return Math.max(0, this.roundMoney(this.totalAmount - this.totalPaid));
   }
 
   getCashProvided(index: number): number {
@@ -485,7 +478,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     if (payment.get('mode')?.value === PaymentMode.CASH) {
       const cashProvided = payment.get('cashProvided')?.value || 0;
       const amount = payment.get('amount')?.value || 0;
-      return Math.max(0, cashProvided - amount);
+      return Math.max(0, this.roundMoney(cashProvided - amount));
     }
     return 0;
   }
@@ -507,7 +500,7 @@ export class BillingComponent implements OnInit, OnDestroy {
     this.recalculatePaymentAmounts();
     const payment = this.paymentsFormArray.at(index);
     const amount = Number(payment.get('amount')?.value || 0);
-    payment.get('cashProvided')?.setValue(Math.round(amount * 100) / 100);
+    payment.get('cashProvided')?.setValue(this.roundMoney(amount));
     this.recalculatePaymentAmounts();
   }
 
@@ -517,11 +510,11 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   private recalculatePaymentAmounts(): void {
     let accumulated = 0;
-    const total = Math.round(this.totalAmount * 100) / 100;
+    const total = this.roundMoney(this.totalAmount);
 
     this.paymentsFormArray.controls.forEach((payment) => {
       const mode = payment.get('mode')?.value;
-      const remaining = Math.max(0, Math.round((total - accumulated) * 100) / 100);
+      const remaining = Math.max(0, this.roundMoney(total - accumulated));
       let appliedAmount = 0;
 
       if (mode === PaymentMode.CASH) {
@@ -531,7 +524,7 @@ export class BillingComponent implements OnInit, OnDestroy {
         appliedAmount = remaining;
       }
 
-      appliedAmount = Math.round(appliedAmount * 100) / 100;
+      appliedAmount = this.roundMoney(appliedAmount);
       if (Number(payment.get('amount')?.value || 0) !== appliedAmount) {
         payment.get('amount')?.setValue(appliedAmount, { emitEvent: false });
       }
@@ -716,21 +709,37 @@ export class BillingComponent implements OnInit, OnDestroy {
 
   private calculateItemTotal(item: BillItem): void {
     if (!item.unitPrice) return;
-    
-    // Calculate item total including GST (for display purposes)
-    // Backend will recalculate, but this gives user immediate feedback
+
+    item.total = this.calculateRoundedItemTotal(item);
+    this.recalculatePaymentAmounts();
+  }
+
+  private calculateRoundedItemTotal(item: BillItem): number {
+    if (!item.unitPrice) {
+      return 0;
+    }
+
     const itemSubtotal = item.unitPrice * item.quantity;
     const gstPercentage = item.medicine?.gstPercentage || 0;
-    const gstAmount = gstPercentage > 0 
-      ? (itemSubtotal * gstPercentage) / 100 
-      : 0;
-    item.total = itemSubtotal + gstAmount;
-    this.recalculatePaymentAmounts();
-    
-    // Debug logging (can be removed in production)
-    if (gstPercentage > 0) {
-      console.log(`Producto: ${item.medicine?.name}, Subtotal: ${itemSubtotal}, IGV%: ${gstPercentage}, IGV: ${gstAmount}, Total: ${item.total}`);
+    const gstAmount = gstPercentage > 0 ? (itemSubtotal * gstPercentage) / 100 : 0;
+
+    return this.roundUpToCashIncrement(itemSubtotal + gstAmount);
+  }
+
+  private roundUpToCashIncrement(amount: number): number {
+    if (!amount || amount <= 0) {
+      return 0;
     }
+
+    return this.roundMoney(Math.ceil((amount - Number.EPSILON) * 10) / 10);
+  }
+
+  private roundMoney(amount: number): number {
+    return Math.round((amount + Number.EPSILON) * 10) / 10;
+  }
+
+  private roundCents(amount: number): number {
+    return Math.round((amount + Number.EPSILON) * 100) / 100;
   }
 
   updateQuantity(index: number, quantity: number): void {
